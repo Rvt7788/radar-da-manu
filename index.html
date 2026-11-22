@@ -771,6 +771,49 @@
       opacity: 0.78;
     }
 
+    .card-details {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .card.is-expanded .card-details {
+      display: block;
+    }
+
+    .card-expand-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 2px;
+      background-color: var(--cor-base-3);
+      color: var(--cor-titulos);
+      font-size: 0.74rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: var(--transition-smooth);
+    }
+
+    .card-expand-btn:hover {
+      border-color: var(--cor-base-1);
+      color: var(--cor-cta);
+    }
+
+    .card-expand-btn i {
+      width: 14px;
+      height: 14px;
+      transition: transform 0.25s ease;
+    }
+
+    .card.is-expanded .card-expand-btn i {
+      transform: rotate(180deg);
+    }
+
     /* Topo Visual Limpo */
     .card-visual {
       position: relative;
@@ -1457,8 +1500,7 @@
               <label for="f-category">Categoria</label>
               <select id="f-category" required>
                 <option value="Cabelo">Cabelo</option>
-                <option value="Maquiagem Essencial">Maquiagem Essencial</option>
-                <option value="Quero / Boca">Quero / Boca</option>
+                <option value="Maquiagem">Maquiagem</option>
                 <option value="Skincare">Skincare</option>
                 <option value="Vestuário">Vestuário</option>
               </select>
@@ -1595,11 +1637,6 @@
             <i data-feather="refresh-cw" style="width: 13px; height: 13px;"></i>
             <span id="sync-prices-label">Atualizar Preços &amp; Fotos</span>
           </button>
-
-          <label class="quero-toggle">
-            <input id="toggle-quero-budget" type="checkbox" checked />
-            <span>Somar lista "Quero" no total</span>
-          </label>
 
           <div class="sort-wrap">
             <label for="sort-select">Ordenar:</label>
@@ -1757,8 +1794,7 @@
 
       const CATEGORY_ICONS = {
         'Cabelo': 'wind',
-        'Maquiagem Essencial': 'sun',
-        'Quero / Boca': 'heart',
+        'Maquiagem': 'sun',
         'Skincare': 'droplet',
         'Vestuário': 'shopping-bag',
       };
@@ -1852,7 +1888,7 @@
         // --- MAQUIAGEM ESSENCIAL (6) ---
         {
           id: 5,
-          category: 'Maquiagem Essencial',
+          category: 'Maquiagem',
           name: 'Pó Compacto Translúcido Boca Rosa — Cor Cuscuz (9g)',
           query: 'Po Compacto Translucido Boca Rosa Cuscuz',
           radarPrice: 35.90,
@@ -1872,7 +1908,7 @@
         },
         {
           id: 6,
-          category: 'Maquiagem Essencial',
+          category: 'Maquiagem',
           name: 'Contorno Stick Multifuncional Niina Secrets Eudora — Cor 3 (5g)',
           query: 'Contorno Stick Niina Secrets Eudora Cor 3',
           radarPrice: 49.90,
@@ -1892,7 +1928,7 @@
         },
         {
           id: 7,
-          category: 'Maquiagem Essencial',
+          category: 'Maquiagem',
           name: 'Bruma Facial Niina Secrets Nutri Fresh 110ml',
           query: 'Bruma Facial Niina Secrets Nutri Fresh 110ml',
           radarPrice: 49.90,
@@ -1912,7 +1948,7 @@
         },
         {
           id: 8,
-          category: 'Maquiagem Essencial',
+          category: 'Maquiagem',
           name: 'Bruma Facial Fixadora Dailus Fix Tudo 150ml',
           query: 'Bruma Facial Dailus Fix Tudo 150ml',
           radarPrice: 53.90,
@@ -1932,7 +1968,7 @@
         },
         {
           id: 9,
-          category: 'Maquiagem Essencial',
+          category: 'Maquiagem',
           name: 'Blindagem Para Pele e Olhos Angel Magic by Pri Lessa Catharine Hill 30ml',
           query: 'Blindagem Angel Magic Pri Lessa Catharine Hill 30ml',
           radarPrice: 52.26,
@@ -1952,7 +1988,7 @@
         },
         {
           id: 10,
-          category: 'Maquiagem Essencial',
+          category: 'Maquiagem',
           name: 'Corretivo Líquido Ruby Kisses Under Eye Corrector — Cor 25 (10ml)',
           query: 'Corretivo Liquido Ruby Kisses Under Eye Corrector 25',
           radarPrice: null,
@@ -1974,7 +2010,7 @@
         // --- QUERO / BOCA (5) ---
         {
           id: 11,
-          category: 'Quero / Boca',
+          category: 'Maquiagem',
           name: "Lip Balm Ruby Rose Blow Girl's Night Hidratante Com Cor",
           query: "Lip Balm Ruby Rose Blow Girl's Night",
           radarPrice: 26.99,
@@ -1994,7 +2030,7 @@
         },
         {
           id: 12,
-          category: 'Quero / Boca',
+          category: 'Maquiagem',
           name: 'Gloss Labial Ruby Rose Blow The Glossier One (5g)',
           query: 'Gloss Labial Ruby Rose Blow The Glossier One',
           radarPrice: 18.79,
@@ -2014,7 +2050,7 @@
         },
         {
           id: 13,
-          category: 'Quero / Boca',
+          category: 'Maquiagem',
           name: 'Gloss Labial Boca Rosa Hidra Lábios Translúcido — Cor Bege (3g)',
           query: 'Gloss Labial Boca Rosa Hidra Labios Bege',
           radarPrice: 27.00,
@@ -2034,7 +2070,7 @@
         },
         {
           id: 14,
-          category: 'Quero / Boca',
+          category: 'Maquiagem',
           name: 'Lápis de Contorno Labial Boca Rosa — Cor Castanho Intenso',
           query: 'Lapis Contorno Labial Boca Rosa Castanho Intenso',
           radarPrice: 29.00,
@@ -2054,7 +2090,7 @@
         },
         {
           id: 15,
-          category: 'Quero / Boca',
+          category: 'Maquiagem',
           name: 'Batom Líquido Instamatte Quem Disse, Berenice? Marrom Marronli 4ml',
           query: 'Batom Liquido Quem Disse Berenice Marrom Marronli',
           radarPrice: 49.90,
@@ -2169,7 +2205,14 @@
           const saved = localStorage.getItem(PRODUCTS_STORAGE_KEY);
           if (saved) {
             const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              return parsed.map((p) => {
+                if (p.category === 'Maquiagem Essencial' || p.category === 'Quero / Boca') {
+                  return { ...p, category: 'Maquiagem' };
+                }
+                return p;
+              });
+            }
           }
         } catch (err) {
           console.warn('localStorage indisponível para produtos:', err);
@@ -2214,15 +2257,14 @@
         category: 'Todos',
         statusFilter: 'Todos',
         sort: 'discount',
-        includeQueroInBudget: true,
         boughtMap: loadBoughtMap(),
+        expandedMap: {},
       };
 
       const CATEGORIES = [
         'Todos',
         'Cabelo',
-        'Maquiagem Essencial',
-        'Quero / Boca',
+        'Maquiagem',
         'Skincare',
         'Vestuário',
       ];
@@ -2299,9 +2341,7 @@
       // 5. CÁLCULO DOS KPIS E TOP BAR
       // =========================================================================
       function updateKPIs() {
-        const pool = state.includeQueroInBudget
-          ? PRODUCTS
-          : PRODUCTS.filter((p) => p.category !== 'Quero / Boca');
+        const pool = PRODUCTS;
 
         let radarSum = 0;
         let radarCount = 0;
@@ -2558,9 +2598,10 @@
               : null;
 
           const photoSrc = item.image || `img/produtos/produto-${item.id}.jpg`;
+          const isExpanded = Boolean(state.expandedMap[item.id]);
 
           return `
-            <article class="card ${isBought ? 'is-bought' : ''}">
+            <article class="card ${isBought ? 'is-bought' : ''} ${isExpanded ? 'is-expanded' : ''}" data-card-id="${item.id}">
               <div>
                 <div class="card-visual">
                   <span class="card-visual-icon">
@@ -2581,66 +2622,92 @@
                 </div>
 
                 <div class="card-body">
-                  <div class="card-category">${item.category} • Ref: ${item.radarStore}</div>
                   <h3 class="card-title">${item.name}</h3>
-
-                  ${noteHtml}
-
-                  <div class="oscillation-block">
-                    <div class="oscillation-header">
-                      <span>Oscilação 6m</span>
-                      <span>${rangeLabel}</span>
-                    </div>
-                    <div class="oscillation-track" title="Preço atual na faixa: ${formatBRL(item.bestToday)}">
-                      <div class="oscillation-fill" style="width: ${fillPct}%;"></div>
-                    </div>
-                    <div class="oscillation-range">
-                      <span>Mín ${formatBRL(item.minPrice)}</span>
-                      <span>Cheio ${formatBRL(item.maxPrice)}</span>
-                    </div>
-                  </div>
 
                   <div class="price-box">
                     <span class="price-current">${formatBRL(item.bestToday)}</span>
                     ${strikePrice ? `<span class="price-old">${formatBRL(strikePrice)}</span>` : ''}
                   </div>
-                  <div class="price-ref">
-                    Radar: ${formatBRL(item.radarPrice)}${item.altOffer && item.note ? ` • ${item.altOffer}` : ''}
-                  </div>
 
-                  ${couponHtml}
-                </div>
-              </div>
-
-              <div class="card-actions">
-                <a href="${primaryUrl}" target="_blank" rel="noopener noreferrer" class="btn-cta">
-                  <span>Ver Oferta</span>
-                  <i data-feather="arrow-right"></i>
-                </a>
-
-                <div class="quick-links">
-                  ${quickLinksHtml}
-                </div>
-
-                <div class="bought-row ${isBought ? 'checked' : ''}">
-                  <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input
-                      type="checkbox"
-                      data-bought-id="${item.id}"
-                      ${isBought ? 'checked' : ''}
-                      class="bought-checkbox"
-                    />
-                    <span>${isBought ? 'Comprado' : 'Marcar como comprado'}</span>
-                  </label>
-                  <button type="button" class="card-edit-btn" data-edit-id="${item.id}">
-                    <i data-feather="edit-2"></i>
-                    <span>Editar</span>
+                  <button type="button" class="card-expand-btn" data-expand-id="${item.id}" aria-expanded="${isExpanded}">
+                    <span class="card-expand-label">${isExpanded ? 'Ocultar detalhes' : 'Ver detalhes'}</span>
+                    <i data-feather="chevron-down"></i>
                   </button>
+
+                  <div class="card-details">
+                    <div class="card-category">${item.category} • Ref: ${item.radarStore}</div>
+                    ${noteHtml}
+
+                    <div class="oscillation-block">
+                      <div class="oscillation-header">
+                        <span>Oscilação 6m</span>
+                        <span>${rangeLabel}</span>
+                      </div>
+                      <div class="oscillation-track" title="Preço atual na faixa: ${formatBRL(item.bestToday)}">
+                        <div class="oscillation-fill" style="width: ${fillPct}%;"></div>
+                      </div>
+                      <div class="oscillation-range">
+                        <span>Mín ${formatBRL(item.minPrice)}</span>
+                        <span>Cheio ${formatBRL(item.maxPrice)}</span>
+                      </div>
+                    </div>
+
+                    <div class="price-ref">
+                      Radar: ${formatBRL(item.radarPrice)}${item.altOffer && item.note ? ` • ${item.altOffer}` : ''}
+                    </div>
+
+                    ${couponHtml}
+
+                    <div class="card-actions">
+                      <a href="${primaryUrl}" target="_blank" rel="noopener noreferrer" class="btn-cta">
+                        <span>Ver Oferta</span>
+                        <i data-feather="arrow-right"></i>
+                      </a>
+
+                      <div class="quick-links">
+                        ${quickLinksHtml}
+                      </div>
+
+                      <div class="bought-row ${isBought ? 'checked' : ''}">
+                        <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                          <input
+                            type="checkbox"
+                            data-bought-id="${item.id}"
+                            ${isBought ? 'checked' : ''}
+                            class="bought-checkbox"
+                          />
+                          <span>${isBought ? 'Comprado' : 'Marcar como comprado'}</span>
+                        </label>
+                        <button type="button" class="card-edit-btn" data-edit-id="${item.id}">
+                          <i data-feather="edit-2"></i>
+                          <span>Editar</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </article>
           `;
         }).join('');
+
+        // Eventos de expandir/ocultar detalhes de cada card
+        grid.querySelectorAll('.card-expand-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const id = Number(btn.dataset.expandId);
+            const card = btn.closest('.card');
+            const nowExpanded = !state.expandedMap[id];
+            if (nowExpanded) {
+              state.expandedMap[id] = true;
+            } else {
+              delete state.expandedMap[id];
+            }
+            if (card) card.classList.toggle('is-expanded', nowExpanded);
+            btn.setAttribute('aria-expanded', String(nowExpanded));
+            const lbl = btn.querySelector('.card-expand-label');
+            if (lbl) lbl.textContent = nowExpanded ? 'Ocultar detalhes' : 'Ver detalhes';
+          });
+        });
 
         // Eventos dos botões de cupom
         grid.querySelectorAll('.coupon-btn').forEach((btn) => {
@@ -3041,11 +3108,6 @@
       document.getElementById('sort-select').addEventListener('change', (e) => {
         state.sort = e.target.value;
         renderProducts();
-      });
-
-      document.getElementById('toggle-quero-budget').addEventListener('change', (e) => {
-        state.includeQueroInBudget = e.target.checked;
-        updateKPIs();
       });
 
       function resetFilters() {
