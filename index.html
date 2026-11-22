@@ -1,0 +1,3100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radar da Manu | Curadoria de Ofertas & Oscilação de Preços</title>
+  <link rel="icon" href="radar-da-manu-logo.png" type="image/png" />
+
+  <!-- Google Fonts: Cormorant Garamond & Jost -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Feather Icons -->
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <style>
+    /* --- DESIGN SYSTEM & PALETTE (EDITORIAL CARMESIM) --- */
+    :root {
+      --cor-titulos: #6E0003;
+      --cor-base-1: #BF0105;
+      --cor-base-2: #F4C7C8;
+      --cor-base-3: #FDF7F7;
+      --cor-cta: #9E0104;
+
+      --bg-site: #FAFAFA;
+      --bg-white: #FFFFFF;
+      --texto-escuro: #1A1A1A;
+      --texto-muted: #666666;
+      --border-light: #EBEBEB;
+
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body: 'Jost', sans-serif;
+
+      --transition-smooth: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* --- RESET --- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-site);
+      color: var(--texto-escuro);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      color: var(--cor-titulos);
+      line-height: 1.2;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      transition: var(--transition-smooth);
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    button, input, select {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: transparent;
+    }
+
+    /* --- TOAST --- */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 200;
+      background-color: var(--texto-escuro);
+      color: var(--bg-white);
+      padding: 12px 20px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      letter-spacing: 0.3px;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: var(--transition-smooth);
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast i {
+      width: 15px;
+      height: 15px;
+      color: var(--cor-base-2);
+    }
+
+    /* --- TOP BAR --- */
+    .top-bar {
+      background-color: var(--cor-base-3);
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 5%;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--cor-titulos);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .top-bar-left,
+    .top-bar-right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .top-bar-right {
+      justify-content: flex-end;
+    }
+
+    .top-bar-center {
+      flex: 2;
+      text-align: center;
+    }
+
+    .top-bar i {
+      width: 13px;
+      height: 13px;
+      stroke-width: 1.8;
+    }
+
+    /* --- HEADER & NAVIGATION --- */
+    header {
+      background-color: var(--bg-white);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 5% 8px 5%;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .brand-logo-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .brand-logo {
+      max-height: 44px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .brand-logo:hover {
+      transform: scale(1.04);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 2.35rem;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--cor-titulos);
+      text-align: center;
+      line-height: 1.05;
+    }
+
+    .brand-subtitle {
+      font-size: 0.78rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--texto-muted);
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    .nav-wrapper {
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 5%;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-wrapper::-webkit-scrollbar {
+      display: none;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0 14px 0;
+      white-space: nowrap;
+    }
+
+    .nav-item {
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--texto-escuro);
+      position: relative;
+      padding: 6px 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition-smooth);
+    }
+
+    .nav-item::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0%;
+      height: 1px;
+      background-color: var(--cor-base-1);
+      transition: var(--transition-smooth);
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      color: var(--cor-base-1);
+    }
+
+    .nav-item:hover::after,
+    .nav-item.active::after {
+      width: 100%;
+    }
+
+    .nav-count {
+      font-size: 0.72rem;
+      color: var(--texto-muted);
+      font-weight: 400;
+    }
+
+    .nav-item.active .nav-count {
+      color: var(--cor-base-1);
+    }
+
+    /* --- MAIN CONTAINER --- */
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 40px 5% 80px 5%;
+    }
+
+    /* --- RESUMO FINANCEIRO EDITORIAL --- */
+    .summary-strip {
+      background-color: var(--bg-white);
+      border-top: 1px solid var(--border-light);
+      border-bottom: 1px solid var(--border-light);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin-bottom: 36px;
+    }
+
+    .summary-item {
+      padding: 24px 28px;
+      border-right: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .summary-item:last-child {
+      border-right: none;
+    }
+
+    .summary-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--texto-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .summary-label i {
+      width: 14px;
+      height: 14px;
+      color: var(--cor-titulos);
+      stroke-width: 1.7;
+    }
+
+    .summary-value {
+      font-family: var(--font-body);
+      font-size: 1.75rem;
+      font-weight: 500;
+      color: var(--texto-escuro);
+      letter-spacing: -0.3px;
+      line-height: 1.15;
+    }
+
+    .summary-value.accent {
+      color: var(--cor-cta);
+    }
+
+    .summary-sub {
+      font-size: 0.8rem;
+      color: var(--texto-muted);
+      margin-top: 6px;
+      font-weight: 400;
+    }
+
+    .summary-pct {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--cor-cta);
+      letter-spacing: 0.5px;
+    }
+
+    .progress-thin {
+      width: 100%;
+      height: 3px;
+      background-color: var(--border-light);
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .progress-thin-fill {
+      height: 100%;
+      background-color: var(--cor-base-1);
+      transition: width 0.4s ease;
+    }
+
+    /* --- CONTROLES: BUSCA, STATUS, ORDENACAO --- */
+    .controls-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 28px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .controls-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 260px;
+      max-width: 460px;
+    }
+
+    .search-box .search-icon {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--texto-muted);
+      pointer-events: none;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border-light);
+      padding: 10px 28px 10px 28px;
+      font-size: 0.9rem;
+      color: var(--texto-escuro);
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .search-box input::placeholder {
+      color: var(--texto-muted);
+      font-weight: 300;
+    }
+
+    .search-box input:focus {
+      border-bottom-color: var(--cor-base-1);
+    }
+
+    .clear-search {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--texto-muted);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+    }
+
+    .clear-search.visible {
+      display: inline-flex;
+    }
+
+    .clear-search:hover {
+      color: var(--cor-titulos);
+    }
+
+    .clear-search i {
+      width: 15px;
+      height: 15px;
+    }
+
+    .controls-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .quero-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--texto-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .quero-toggle input {
+      accent-color: var(--cor-cta);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+
+    .sort-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--texto-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .sort-wrap select {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border-light);
+      padding: 6px 4px;
+      font-size: 0.85rem;
+      color: var(--texto-escuro);
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .sort-wrap select:focus {
+      border-bottom-color: var(--cor-base-1);
+    }
+
+    .controls-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .status-filters {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: var(--texto-muted);
+      padding: 4px 0;
+      border-bottom: 1px solid transparent;
+      transition: var(--transition-smooth);
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      color: var(--cor-cta);
+      border-bottom-color: var(--cor-cta);
+    }
+
+    .results-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.8rem;
+      color: var(--texto-muted);
+    }
+
+    .reset-link {
+      color: var(--cor-cta);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-size: 0.75rem;
+      display: none;
+    }
+
+    .reset-link.visible {
+      display: inline-block;
+    }
+
+    .reset-link:hover {
+      text-decoration: underline;
+    }
+
+    /* --- CAIXA DE LANÇAMENTO / ATUALIZAÇÃO DE PRODUTOS --- */
+    .manager-box {
+      background-color: var(--bg-white);
+      border: 1px solid var(--border-light);
+      border-radius: 2px;
+      margin-bottom: 32px;
+    }
+
+    .manager-header {
+      width: 100%;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      text-align: left;
+      transition: var(--transition-smooth);
+    }
+
+    .manager-header:hover {
+      background-color: var(--cor-base-3);
+    }
+
+    .manager-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .manager-header-left i {
+      width: 18px;
+      height: 18px;
+      color: var(--cor-cta);
+    }
+
+    .manager-title {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--cor-titulos);
+    }
+
+    .manager-sub {
+      font-size: 0.78rem;
+      color: var(--texto-muted);
+      margin-top: 2px;
+    }
+
+    .manager-toggle-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--cor-cta);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .manager-toggle-label i {
+      width: 15px;
+      height: 15px;
+      transition: transform 0.3s ease;
+    }
+
+    .manager-box.open .manager-toggle-label i {
+      transform: rotate(180deg);
+    }
+
+    .manager-body {
+      display: none;
+      padding: 24px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .manager-box.open .manager-body {
+      display: block;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px 20px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-field.span-2 {
+      grid-column: span 2;
+    }
+
+    .form-field.span-4 {
+      grid-column: span 4;
+    }
+
+    .form-field label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: var(--texto-muted);
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+      width: 100%;
+      background-color: var(--bg-site);
+      border: 1px solid var(--border-light);
+      border-radius: 2px;
+      padding: 9px 12px;
+      font-size: 0.88rem;
+      color: var(--texto-escuro);
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+      border-color: var(--cor-base-1);
+      background-color: var(--bg-white);
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .form-actions-left,
+    .form-actions-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--texto-muted);
+      border: 1px solid var(--border-light);
+      padding: 10px 18px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-radius: 4px;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--cor-titulos);
+      color: var(--cor-titulos);
+    }
+
+    .card-edit-btn {
+      font-size: 0.74rem;
+      color: var(--cor-cta);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-edit-btn:hover {
+      text-decoration: underline;
+    }
+
+    .card-edit-btn i {
+      width: 12px;
+      height: 12px;
+    }
+
+    .bought-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* --- PRODUCT GRID --- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 40px 30px;
+    }
+
+    .card {
+      background-color: var(--bg-white);
+      border-radius: 2px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition-smooth);
+    }
+
+    .card.is-bought {
+      opacity: 0.78;
+    }
+
+    /* Topo Visual Limpo */
+    .card-visual {
+      position: relative;
+      background-color: var(--cor-base-3);
+      border-radius: 2px;
+      padding: 18px 16px 14px 16px;
+      aspect-ratio: 4 / 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .card-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background-color: #FFFFFF;
+      padding: 14px;
+      transition: transform 0.5s ease;
+      z-index: 1;
+    }
+
+    .card:hover .card-photo {
+      transform: scale(1.04);
+    }
+
+    .card-visual-icon {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      color: var(--cor-base-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 0;
+    }
+
+    .card-visual-icon i {
+      width: 22px;
+      height: 22px;
+      stroke-width: 1.5;
+    }
+
+    .tag-status {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background-color: var(--cor-cta);
+      color: #FFFFFF;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 4px 9px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-radius: 2px;
+      z-index: 3;
+    }
+
+    .tag-status.tag-bought {
+      background-color: var(--texto-escuro);
+    }
+
+    .tag-status.tag-alert {
+      background-color: var(--cor-titulos);
+    }
+
+    .card-visual-meta {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 4px 8px;
+      border-radius: 2px;
+    }
+
+    .card-store-highlight {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--cor-titulos);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .card-drop-highlight {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--cor-cta);
+      line-height: 1;
+    }
+
+    /* Corpo do Card */
+    .card-body {
+      padding: 0 2px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-category {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1.1px;
+      color: var(--texto-muted);
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--cor-titulos);
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-size: 0.84rem;
+      color: var(--texto-muted);
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    .card-alert-note {
+      font-size: 0.82rem;
+      color: var(--cor-titulos);
+      background-color: var(--cor-base-3);
+      border-left: 2px solid var(--cor-cta);
+      padding: 8px 10px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.4;
+    }
+
+    .card-alert-note i {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: var(--cor-cta);
+    }
+
+    /* Barra de Oscilação Minimalista */
+    .oscillation-block {
+      margin-bottom: 16px;
+    }
+
+    .oscillation-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--texto-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 6px;
+    }
+
+    .oscillation-track {
+      position: relative;
+      width: 100%;
+      height: 3px;
+      background-color: var(--border-light);
+      margin-bottom: 6px;
+    }
+
+    .oscillation-fill {
+      height: 100%;
+      background-color: var(--cor-base-1);
+    }
+
+    .oscillation-range {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      color: var(--texto-muted);
+    }
+
+    /* Preços */
+    .price-box {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .price-current {
+      font-weight: 600;
+      font-size: 1.15rem;
+      color: var(--texto-escuro);
+    }
+
+    .price-old {
+      color: var(--texto-muted);
+      text-decoration: line-through;
+      font-size: 0.88rem;
+    }
+
+    .price-ref {
+      font-size: 0.78rem;
+      color: var(--texto-muted);
+      margin-bottom: 14px;
+    }
+
+    /* Cupom */
+    .coupon-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background-color: var(--cor-base-3);
+      border: 1px dashed var(--cor-base-1);
+      border-radius: 2px;
+      margin-bottom: 14px;
+      transition: var(--transition-smooth);
+    }
+
+    .coupon-btn:hover {
+      background-color: var(--cor-base-2);
+    }
+
+    .coupon-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--cor-titulos);
+    }
+
+    .coupon-left i {
+      width: 13px;
+      height: 13px;
+    }
+
+    .coupon-code {
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .coupon-feedback {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 600;
+      color: var(--cor-cta);
+    }
+
+    /* Ações do Card */
+    .card-actions {
+      padding: 14px 2px 0 2px;
+      border-top: 1px solid var(--border-light);
+      margin-top: auto;
+    }
+
+    .btn-cta {
+      width: 100%;
+      background-color: var(--cor-cta);
+      color: #FFFFFF;
+      padding: 11px 18px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1.1px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-cta:hover {
+      background-color: var(--cor-titulos);
+      color: #FFFFFF;
+    }
+
+    .btn-cta i {
+      width: 14px;
+      height: 14px;
+    }
+
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      margin-top: 12px;
+    }
+
+    .quick-link {
+      font-size: 0.76rem;
+      color: var(--texto-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: var(--transition-smooth);
+    }
+
+    .quick-link:hover {
+      color: var(--cor-cta);
+      text-decoration: underline;
+    }
+
+    .quick-link i {
+      width: 11px;
+      height: 11px;
+    }
+
+    .bought-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-light);
+      font-size: 0.78rem;
+      color: var(--texto-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .bought-row.checked {
+      color: var(--cor-titulos);
+      font-weight: 500;
+    }
+
+    .bought-row input {
+      accent-color: var(--cor-cta);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+
+    /* --- EMPTY STATE --- */
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 64px 20px;
+      background-color: var(--bg-white);
+      border: 1px solid var(--border-light);
+      border-radius: 2px;
+    }
+
+    .empty-state.visible {
+      display: block;
+    }
+
+    .empty-state i {
+      width: 28px;
+      height: 28px;
+      color: var(--cor-base-1);
+      margin-bottom: 12px;
+    }
+
+    .empty-state h3 {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      font-size: 0.9rem;
+      color: var(--texto-muted);
+      margin-bottom: 20px;
+    }
+
+    .empty-state .btn-cta {
+      width: auto;
+      padding: 12px 28px;
+    }
+
+    /* --- FOOTER --- */
+    footer {
+      background-color: var(--texto-escuro);
+      color: #FFFFFF;
+      padding: 72px 5% 32px 5%;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1.4fr;
+      gap: 48px;
+      max-width: 1440px;
+      margin: 0 auto;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding-bottom: 52px;
+      margin-bottom: 28px;
+    }
+
+    .footer-brand h3 {
+      color: #FFFFFF;
+      font-size: 1.85rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .footer-brand p {
+      color: #CCCCCC;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      max-width: 320px;
+    }
+
+    .footer-col h4 {
+      color: var(--cor-base-2);
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 20px;
+    }
+
+    .footer-col ul li {
+      margin-bottom: 12px;
+    }
+
+    .footer-col ul li a {
+      color: #CCCCCC;
+      font-size: 0.88rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-col ul li a:hover {
+      color: #FFFFFF;
+      padding-left: 4px;
+    }
+
+    .footer-col ul li a span.tool-tag {
+      font-size: 0.7rem;
+      color: var(--cor-base-2);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .arch-list li {
+      margin-bottom: 14px;
+      color: #CCCCCC;
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+
+    .arch-list strong {
+      color: #FFFFFF;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1440px;
+      margin: 0 auto;
+      color: #999999;
+      font-size: 0.78rem;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 1024px) {
+      .summary-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .summary-item:nth-child(2) {
+        border-right: none;
+      }
+
+      .summary-item:nth-child(1),
+      .summary-item:nth-child(2) {
+        border-bottom: 1px solid var(--border-light);
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .top-bar {
+        flex-direction: column;
+        gap: 4px;
+        text-align: center;
+        padding: 8px 4%;
+      }
+
+      .top-bar-left,
+      .top-bar-right {
+        justify-content: center;
+      }
+
+      .brand-title {
+        font-size: 1.85rem;
+      }
+
+      .main-nav {
+        gap: 20px;
+        justify-content: flex-start;
+      }
+
+      .summary-strip {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .summary-item {
+        padding: 16px 14px;
+      }
+
+      .summary-value {
+        font-size: 1.35rem;
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px 16px;
+      }
+
+      .card-visual {
+        padding: 20px 12px 16px 12px;
+        min-height: 110px;
+      }
+
+      .tag-status {
+        top: 10px;
+        right: 10px;
+        font-size: 0.62rem;
+        padding: 3px 7px;
+      }
+
+      .card-title {
+        font-size: 1.08rem;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .form-field.span-2,
+      .form-field.span-4 {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px 12px;
+      }
+
+      .btn-cta {
+        font-size: 0.72rem;
+        padding: 10px 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Toast de Feedback -->
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <i data-feather="check"></i>
+    <span id="toast-message">Copiado!</span>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <i data-feather="activity"></i>
+      <span>Black Friday 2026</span>
+    </div>
+    <div class="top-bar-center" id="topbar-summary">
+      Radar ativo — 19 itens monitorados
+    </div>
+    <div class="top-bar-right">
+      <i data-feather="bookmark"></i>
+      <span id="topbar-bought">1 / 19 comprados</span>
+    </div>
+  </div>
+
+  <!-- HEADER EDITORIAL -->
+  <header>
+    <div class="header-content">
+      <div class="brand-logo-wrap">
+        <img src="radar-da-manu-logo.png" alt="Radar da Manu" class="brand-logo" />
+      </div>
+      <p class="brand-subtitle">Curadoria de ofertas &amp; oscilação de mercado (6 meses)</p>
+    </div>
+
+    <div class="nav-wrapper">
+      <nav class="main-nav" id="category-tabs" role="tablist" aria-label="Categorias">
+        <!-- Preenchido via JS -->
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- RESUMO FINANCEIRO EDITORIAL -->
+    <section aria-label="Resumo Financeiro" class="summary-strip">
+      <div class="summary-item">
+        <div class="summary-label">
+          <span>Total no Radar</span>
+          <i data-feather="clipboard"></i>
+        </div>
+        <div id="kpi-radar-total" class="summary-value">R$ 0,00</div>
+        <p id="kpi-radar-sub" class="summary-sub">18 itens precificados (+1 achado hoje)</p>
+      </div>
+
+      <div class="summary-item">
+        <div class="summary-label">
+          <span>Melhores Ofertas Hoje</span>
+          <i data-feather="tag"></i>
+        </div>
+        <div id="kpi-best-total" class="summary-value">R$ 0,00</div>
+        <p id="kpi-best-sub" class="summary-sub">Menor valor disponível por item</p>
+      </div>
+
+      <div class="summary-item">
+        <div class="summary-label">
+          <span>Economia vs. Radar</span>
+          <span id="kpi-savings-pct" class="summary-pct">-0%</span>
+        </div>
+        <div id="kpi-savings-value" class="summary-value accent">R$ 0,00</div>
+        <p id="kpi-savings-sub" class="summary-sub">Aproveitando as quedas de hoje</p>
+      </div>
+
+      <div class="summary-item">
+        <div class="summary-label">
+          <span>Itens Comprados</span>
+          <span id="kpi-bought-badge" class="summary-pct">1 / 19</span>
+        </div>
+        <div id="kpi-bought-value" class="summary-value">R$ 89,70</div>
+        <div class="progress-thin">
+          <div id="kpi-bought-bar" class="progress-thin-fill" style="width: 5%"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAIXA PARA ATUALIZAR E LANÇAR NOVOS PRODUTOS -->
+    <section id="manager-box" class="manager-box" aria-label="Gerenciar produtos do Radar">
+      <button type="button" id="manager-toggle" class="manager-header" aria-expanded="false">
+        <div class="manager-header-left">
+          <i data-feather="plus-circle"></i>
+          <div>
+            <div class="manager-title" id="manager-heading">Lançar ou Atualizar Produto</div>
+            <div class="manager-sub">Adicione novos itens ao Radar ou atualize preços, lojas, cupons e alertas (salvo localmente)</div>
+          </div>
+        </div>
+        <span class="manager-toggle-label">
+          <span id="manager-toggle-text">Abrir formulário</span>
+          <i data-feather="chevron-down"></i>
+        </span>
+      </button>
+
+      <div class="manager-body">
+        <form id="product-form">
+          <div class="form-grid">
+            <div class="form-field span-2">
+              <label for="f-edit-select">Modo / Selecionar item para atualizar</label>
+              <select id="f-edit-select">
+                <option value="">+ Lançar novo produto</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="f-category">Categoria</label>
+              <select id="f-category" required>
+                <option value="Cabelo">Cabelo</option>
+                <option value="Maquiagem Essencial">Maquiagem Essencial</option>
+                <option value="Quero / Boca">Quero / Boca</option>
+                <option value="Skincare">Skincare</option>
+                <option value="Vestuário">Vestuário</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="f-status">Status</label>
+              <select id="f-status">
+                <option value="caiu">Caiu Hoje</option>
+                <option value="piso">Menor Preço</option>
+                <option value="alerta">Alerta / Atenção</option>
+                <option value="comprado">Comprado</option>
+              </select>
+            </div>
+
+            <div class="form-field span-2">
+              <label for="f-name">Nome do Produto *</label>
+              <input id="f-name" type="text" placeholder="Ex: Sérum Hidratante Principia 30ml" required />
+            </div>
+
+            <div class="form-field">
+              <label for="f-best-today">Melhor Preço Hoje (R$) *</label>
+              <input id="f-best-today" type="number" step="0.01" min="0" placeholder="49.90" required />
+            </div>
+
+            <div class="form-field">
+              <label for="f-radar-price">Preço no Radar (R$)</label>
+              <input id="f-radar-price" type="number" step="0.01" min="0" placeholder="59.90" />
+            </div>
+
+            <div class="form-field">
+              <label for="f-best-store">Loja da Oferta *</label>
+              <input id="f-best-store" type="text" placeholder="Ex: Amazon, Sephora, Magalu" required />
+            </div>
+
+            <div class="form-field">
+              <label for="f-radar-store">Loja Referência</label>
+              <input id="f-radar-store" type="text" placeholder="Ex: Referência Radar" />
+            </div>
+
+            <div class="form-field">
+              <label for="f-min-price">Mínima 6m (R$)</label>
+              <input id="f-min-price" type="number" step="0.01" min="0" placeholder="45.00" />
+            </div>
+
+            <div class="form-field">
+              <label for="f-max-price">Preço Cheio 6m (R$)</label>
+              <input id="f-max-price" type="number" step="0.01" min="0" placeholder="89.90" />
+            </div>
+
+            <div class="form-field">
+              <label for="f-coupon">Cupom (opcional)</label>
+              <input id="f-coupon" type="text" placeholder="Ex: AATIVA10" />
+            </div>
+
+            <div class="form-field">
+              <label for="f-status-label">Etiqueta (opcional)</label>
+              <input id="f-status-label" type="text" placeholder="Ex: CAIU HOJE, FORMA PEQUENA" />
+            </div>
+
+            <div class="form-field span-2">
+              <label for="f-alt-offer">Oferta Alternativa / Comparativo</label>
+              <input id="f-alt-offer" type="text" placeholder="Ex: Renner por R$ 54,90" />
+            </div>
+
+            <div class="form-field span-2">
+              <label for="f-note">Observação ou Alerta</label>
+              <input id="f-note" type="text" placeholder="Ex: Estoque baixo na Amazon; forma pequena, considerar nº 39" />
+            </div>
+
+            <div class="form-field span-2">
+              <label for="f-image">URL ou caminho da Foto (opcional)</label>
+              <div style="display: flex; gap: 8px; align-items: stretch;">
+                <input id="f-image" type="text" placeholder="Ex: img/produtos/produto-1.jpg ou https://..." style="flex: 1;" />
+                <button type="button" id="f-fetch-img-btn" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; white-space: nowrap;">
+                  <i data-feather="image" style="width: 13px; height: 13px;"></i>
+                  <span id="f-fetch-img-label">Buscar Foto</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <div class="form-actions-left">
+              <button type="button" id="f-delete-btn" class="btn-secondary" style="display: none;">
+                Excluir item
+              </button>
+              <button type="button" id="f-reset-all-btn" class="btn-secondary">
+                Restaurar lista original
+              </button>
+            </div>
+            <div class="form-actions-right">
+              <button type="button" id="f-cancel-btn" class="btn-secondary">Limpar</button>
+              <button type="submit" id="f-submit-btn" class="btn-cta" style="width: auto; padding: 11px 28px;">
+                <span id="f-submit-label">Lançar Produto</span>
+                <i data-feather="check"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- CONTROLES: BUSCA, FILTROS DE STATUS, ORDENACAO -->
+    <section class="controls-bar" aria-label="Filtros e busca">
+      <div class="controls-top">
+        <div class="search-box">
+          <i data-feather="search" class="search-icon"></i>
+          <input
+            id="search-input"
+            type="text"
+            placeholder="Buscar produto, marca, loja ou cupom..."
+            aria-label="Buscar produtos"
+          />
+          <button id="clear-search" type="button" class="clear-search" aria-label="Limpar busca">
+            <i data-feather="x"></i>
+          </button>
+        </div>
+
+        <div class="controls-right">
+          <button type="button" id="sync-prices-btn" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;">
+            <i data-feather="refresh-cw" style="width: 13px; height: 13px;"></i>
+            <span id="sync-prices-label">Atualizar Preços &amp; Fotos</span>
+          </button>
+
+          <label class="quero-toggle">
+            <input id="toggle-quero-budget" type="checkbox" checked />
+            <span>Somar lista "Quero" no total</span>
+          </label>
+
+          <div class="sort-wrap">
+            <label for="sort-select">Ordenar:</label>
+            <select id="sort-select">
+              <option value="discount">Maior Desconto vs. Radar</option>
+              <option value="price-asc">Menor Preço Hoje</option>
+              <option value="price-desc">Maior Preço Hoje</option>
+              <option value="category">Categoria</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-bottom">
+        <div class="status-filters" id="status-chips">
+          <!-- Preenchido via JS -->
+        </div>
+
+        <div class="results-meta">
+          <span id="results-count">Mostrando 19 de 19 itens</span>
+          <button id="reset-filters-btn" type="button" class="reset-link">Limpar filtros</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRID DE PRODUTOS -->
+    <section id="products-grid" class="grid" aria-label="Lista de produtos">
+      <!-- Cards gerados via JS -->
+    </section>
+
+    <!-- ESTADO VAZIO -->
+    <div id="empty-state" class="empty-state">
+      <i data-feather="search"></i>
+      <h3>Nenhum item encontrado</h3>
+      <p>Tente remover os filtros ativos ou buscar por outro termo ou loja.</p>
+      <button id="empty-reset-btn" type="button" class="btn-cta">
+        Restaurar todos os 19 itens
+      </button>
+    </div>
+  </main>
+
+  <!-- RODAPÉ EDITORIAL -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3>Radar da Black</h3>
+        <p>
+          Painel local interativo de monitoramento de ofertas e oscilação de preços de 6 meses.
+          Compras marcadas são salvas automaticamente no seu navegador via localStorage.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Histórico 6 Meses</h4>
+        <ul>
+          <li>
+            <a href="https://keepa.com/" target="_blank" rel="noopener noreferrer">
+              Keepa <span class="tool-tag">Amazon</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.zoom.com.br/" target="_blank" rel="noopener noreferrer">
+              Zoom <span class="tool-tag">Grandes Lojas</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.buscape.com.br/" target="_blank" rel="noopener noreferrer">
+              Buscapé <span class="tool-tag">Comparador</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Cupons &amp; Alertas</h4>
+        <ul>
+          <li>
+            <a href="https://escorregaopreco.com.br/" target="_blank" rel="noopener noreferrer">
+              Escorrega o Preço <span class="tool-tag">Extensão</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.pelando.com.br/" target="_blank" rel="noopener noreferrer">
+              Pelando <span class="tool-tag">Cupons</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.promobit.com.br/" target="_blank" rel="noopener noreferrer">
+              Promobit <span class="tool-tag">Comunidade</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Arquitetura Local (Zero Bloqueio)</h4>
+        <ul class="arch-list">
+          <li>
+            <strong>Camada 1 — API Mercado Livre</strong>
+            Consulte api.mercadolibre.com/items/MLB... diretamente em JSON, sem CAPTCHA.
+          </li>
+          <li>
+            <strong>Camada 2 — Alertas Keepa (Amazon)</strong>
+            Alertas de preço alvo direto no Keepa, evitando bloqueios de Cloudflare/Akamai.
+          </li>
+          <li>
+            <strong>Camada 3 — Playwright no Windows</strong>
+            Agendador de Tarefas 2–3x/dia em IP residencial com perfil persistente do Chrome.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>RADAR DA BLACK — Painel local editorial</span>
+      <span>Dados salvos localmente no navegador (localStorage)</span>
+    </div>
+  </footer>
+
+  <!-- LÓGICA INTERATIVA E BASE DOS 19 ITENS -->
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================================
+      // 1. GERADOR DE LINKS REAIS DE MARKETPLACES BRASILEIROS
+      // =========================================================================
+      const STORE_BUILDERS = {
+        'Google Shopping': (q) => `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(q)}`,
+        'Amazon': (q) => `https://www.amazon.com.br/s?k=${encodeURIComponent(q)}`,
+        'Mercado Livre': (q) => `https://lista.mercadolivre.com.br/${encodeURIComponent(q).replace(/%20/g, '-')}`,
+        'Netshoes': (q) => `https://www.netshoes.com.br/busca?nsCat=Natural&q=${encodeURIComponent(q)}`,
+        'Centauro': (q) => `https://www.centauro.com.br/busca?q=${encodeURIComponent(q)}`,
+        'Magalu': (q) => `https://www.magazineluiza.com.br/busca/${encodeURIComponent(q)}/`,
+        'Beleza na Web': (q) => `https://www.belezanaweb.com.br/busca?q=${encodeURIComponent(q)}`,
+        'Drogasil': (q) => `https://www.drogasil.com.br/search?w=${encodeURIComponent(q)}`,
+        'Droga Raia': (q) => `https://www.drogaraia.com.br/search?w=${encodeURIComponent(q)}`,
+        'Boca Rosa': (q) => `https://www.bocarosa.com.br/search?q=${encodeURIComponent(q)}`,
+        'Sephora': (q) => `https://www.sephora.com.br/busca/?q=${encodeURIComponent(q)}`,
+        'Quem Disse, Berenice?': (q) => `https://www.quemdisseberenice.com.br/busca?q=${encodeURIComponent(q)}`,
+        'Creamy': (q) => `https://www.creamy.com.br/busca?q=${encodeURIComponent(q)}`,
+        'Renner': (q) => `https://www.lojasrenner.com.br/b?Ntt=${encodeURIComponent(q)}`,
+        'Época Cosméticos': (q) => `https://www.epocacosmeticos.com.br/busca?q=${encodeURIComponent(q)}`,
+        'Shopee': (q) => `https://shopee.com.br/search?keyword=${encodeURIComponent(q)}`,
+        'Ruby Rose': (q) => `https://www.rubyrosemaquiagem.com.br/busca?q=${encodeURIComponent(q)}`,
+        'Under Armour': (q) => `https://www.underarmour.com.br/busca?q=${encodeURIComponent(q)}`,
+      };
+
+      function buildStoreUrl(storeName, query) {
+        if (STORE_BUILDERS[storeName]) {
+          return STORE_BUILDERS[storeName](query);
+        }
+        return STORE_BUILDERS['Google Shopping'](`${query} ${storeName}`);
+      }
+
+      const CATEGORY_ICONS = {
+        'Cabelo': 'wind',
+        'Maquiagem Essencial': 'sun',
+        'Quero / Boca': 'heart',
+        'Skincare': 'droplet',
+        'Vestuário': 'shopping-bag',
+      };
+
+      // =========================================================================
+      // 2. DADOS EXATOS DOS 19 ITENS DO RADAR DA BLACK
+      // =========================================================================
+      const DEFAULT_PRODUCTS = [
+        // --- CABELO (4) ---
+        {
+          id: 1,
+          category: 'Cabelo',
+          name: 'Combo Ápice Fitagem (Escova + Gelatina Cachos + Creme Nutri Waves)',
+          query: 'Combo Apice Fitagem Gelatina Cachos Creme Nutri Waves',
+          radarPrice: 89.70,
+          radarStore: 'Site Ápice (Pix + cupom + frete)',
+          bestToday: 89.70,
+          bestStore: 'Site Ápice',
+          primaryLinkStore: 'Google Shopping',
+          altOffer: 'Kits similares na loja oficial: R$ 126,90 a R$ 174,32',
+          minPrice: 89.70,
+          maxPrice: 174.32,
+          status: 'comprado',
+          statusLabel: 'COMPRADO',
+          defaultBought: true,
+          coupon: null,
+          note: 'Excelente compra no dia 17! Saiu bem mais barato que montar o kit avulso na Amazon ou na loja oficial.',
+          quickStores: ['Google Shopping', 'Amazon', 'Mercado Livre', 'Shopee'],
+        },
+        {
+          id: 2,
+          category: 'Cabelo',
+          name: 'Ativador e Modelador Anti-Frizz Cachos Essence Ápice 1L',
+          query: 'Ativador Modelador Anti-Frizz Cachos Essence Apice 1L',
+          radarPrice: 71.24,
+          radarStore: 'Vendedor oficial',
+          bestToday: 65.94,
+          bestStore: 'Bem Beleza',
+          primaryLinkStore: 'Google Shopping',
+          altOffer: 'Magalu está por R$ 102,30',
+          minPrice: 65.94,
+          maxPrice: 110.90,
+          status: 'caiu',
+          statusLabel: 'CAIU HOJE',
+          defaultBought: false,
+          coupon: null,
+          note: null,
+          quickStores: ['Google Shopping', 'Amazon', 'Mercado Livre', 'Magalu'],
+        },
+        {
+          id: 3,
+          category: 'Cabelo',
+          name: 'Gelatina Ativadora e Nutritiva Ápice Cachos Essence Coco e Chia 500ml',
+          query: 'Gelatina Ativadora Nutritiva Apice Cachos Essence Coco e Chia 500ml',
+          radarPrice: 49.90,
+          radarStore: 'Menor preço registrado',
+          bestToday: 49.90,
+          bestStore: 'Preço no Radar',
+          primaryLinkStore: 'Google Shopping',
+          altOffer: 'Shopee a R$ 58,89',
+          minPrice: 49.90,
+          maxPrice: 75.89,
+          status: 'piso',
+          statusLabel: 'MENOR PREÇO',
+          defaultBought: false,
+          coupon: null,
+          note: null,
+          quickStores: ['Google Shopping', 'Amazon', 'Mercado Livre', 'Shopee'],
+        },
+        {
+          id: 4,
+          category: 'Cabelo',
+          name: 'Máscara Acidificante de Equilíbrio do pH 250g | Amend Essencial',
+          query: 'Mascara Acidificante Amend Essencial 250g',
+          radarPrice: 30.90,
+          radarStore: 'Amazon',
+          bestToday: 32.18,
+          bestStore: 'Amazon (10% off recorrência)',
+          primaryLinkStore: 'Amazon',
+          altOffer: 'Renner por R$ 32,90',
+          minPrice: 30.29,
+          maxPrice: 51.90,
+          status: 'piso',
+          statusLabel: 'MENOR PREÇO',
+          defaultBought: false,
+          coupon: null,
+          note: 'Metade do preço cheio! Chegou a bater R$ 30,29 em promoção recente.',
+          quickStores: ['Google Shopping', 'Amazon', 'Mercado Livre', 'Renner'],
+        },
+
+        // --- MAQUIAGEM ESSENCIAL (6) ---
+        {
+          id: 5,
+          category: 'Maquiagem Essencial',
+          name: 'Pó Compacto Translúcido Boca Rosa — Cor Cuscuz (9g)',
+          query: 'Po Compacto Translucido Boca Rosa Cuscuz',
+          radarPrice: 35.90,
+          radarStore: 'Renner',
+          bestToday: 21.66,
+          bestStore: 'Site Boca Rosa',
+          primaryLinkStore: 'Boca Rosa',
+          altOffer: 'Menor em 30 dias • Panvel por R$ 32,30',
+          minPrice: 21.66,
+          maxPrice: 91.99,
+          status: 'caiu',
+          statusLabel: 'CAIU HOJE',
+          defaultBought: false,
+          coupon: null,
+          note: 'Queda expressiva direto no site oficial da Boca Rosa (menor valor registrado em 30 dias).',
+          quickStores: ['Google Shopping', 'Boca Rosa', 'Renner', 'Amazon'],
+        },
+        {
+          id: 6,
+          category: 'Maquiagem Essencial',
+          name: 'Contorno Stick Multifuncional Niina Secrets Eudora — Cor 3 (5g)',
+          query: 'Contorno Stick Niina Secrets Eudora Cor 3',
+          radarPrice: 49.90,
+          radarStore: 'Amazon',
+          bestToday: 49.90,
+          bestStore: 'Beleza na Web (Eudora)',
+          primaryLinkStore: 'Beleza na Web',
+          altOffer: 'Empata com a Amazon no mesmo valor',
+          minPrice: 49.90,
+          maxPrice: 64.99,
+          status: 'alerta',
+          statusLabel: 'ESTOQUE BAIXO',
+          defaultBought: false,
+          coupon: null,
+          note: 'Estoque baixo na Amazon; a Beleza na Web (Eudora) empata nos R$ 49,90 como plano B seguro.',
+          quickStores: ['Google Shopping', 'Beleza na Web', 'Amazon', 'Mercado Livre'],
+        },
+        {
+          id: 7,
+          category: 'Maquiagem Essencial',
+          name: 'Bruma Facial Niina Secrets Nutri Fresh 110ml',
+          query: 'Bruma Facial Niina Secrets Nutri Fresh 110ml',
+          radarPrice: 49.90,
+          radarStore: 'Referência Radar',
+          bestToday: 48.90,
+          bestStore: 'Chroma Cosméticos',
+          primaryLinkStore: 'Google Shopping',
+          altOffer: 'Netshoes por R$ 54,96',
+          minPrice: 48.90,
+          maxPrice: 74.99,
+          status: 'caiu',
+          statusLabel: 'CAIU HOJE',
+          defaultBought: false,
+          coupon: null,
+          note: null,
+          quickStores: ['Google Shopping', 'Amazon', 'Mercado Livre', 'Netshoes'],
+        },
+        {
+          id: 8,
+          category: 'Maquiagem Essencial',
+          name: 'Bruma Facial Fixadora Dailus Fix Tudo 150ml',
+          query: 'Bruma Facial Dailus Fix Tudo 150ml',
+          radarPrice: 53.90,
+          radarStore: 'Referência Radar',
+          bestToday: 29.49,
+          bestStore: 'IAP! Cosméticos',
+          primaryLinkStore: 'Google Shopping',
+          altOffer: 'Magalu por R$ 44,99',
+          minPrice: 29.49,
+          maxPrice: 65.90,
+          status: 'caiu',
+          statusLabel: 'CAIU HOJE',
+          defaultBought: false,
+          coupon: null,
+          note: 'Desconto muito forte fora dos marketplaces tradicionais; Magalu também está abaixo do radar.',
+          quickStores: ['Google Shopping', 'Magalu', 'Amazon', 'Mercado Livre'],
+        },
+        {
+          id: 9,
+          category: 'Maquiagem Essencial',
+          name: 'Blindagem Para Pele e Olhos Angel Magic by Pri Lessa Catharine Hill 30ml',
+          query: 'Blindagem Angel Magic Pri Lessa Catharine Hill 30ml',
+          radarPrice: 52.26,
+          radarStore: 'Referência Radar',
+          bestToday: 54.99,
+          bestStore: 'Época Cosméticos',
+          primaryLinkStore: 'Época Cosméticos',
+          altOffer: 'Chega a R$ 79,90 na Droga Raia',
+          minPrice: 52.26,
+          maxPrice: 79.90,
+          status: 'piso',
+          statusLabel: 'MENOR PREÇO',
+          defaultBought: false,
+          coupon: null,
+          note: null,
+          quickStores: ['Google Shopping', 'Época Cosméticos', 'Amazon', 'Droga Raia'],
+        },
+        {
+          id: 10,
+          category: 'Maquiagem Essencial',
+          name: 'Corretivo Líquido Ruby Kisses Under Eye Corrector — Cor 25 (10ml)',
+          query: 'Corretivo Liquido Ruby Kisses Under Eye Corrector 25',
+          radarPrice: null,
+          radarStore: 'Sem preço anterior',
+          bestToday: 30.11,
+          bestStore: 'Amazon Seller',
+          primaryLinkStore: 'Amazon',
+          altOffer: 'Droga Raia por R$ 52,00 • Drogasil até R$ 78,22',
+          minPrice: 30.11,
+          maxPrice: 78.22,
+          status: 'caiu',
+          statusLabel: 'ACHADO HOJE',
+          defaultBought: false,
+          coupon: null,
+          note: 'Achado em estoque online! Antes estava sem preço e difícil de encontrar.',
+          quickStores: ['Google Shopping', 'Amazon', 'Droga Raia', 'Drogasil'],
+        },
+
+        // --- QUERO / BOCA (5) ---
+        {
+          id: 11,
+          category: 'Quero / Boca',
+          name: "Lip Balm Ruby Rose Blow Girl's Night Hidratante Com Cor",
+          query: "Lip Balm Ruby Rose Blow Girl's Night",
+          radarPrice: 26.99,
+          radarStore: 'Mercado Livre',
+          bestToday: 14.29,
+          bestStore: 'Magalu (c/ cupom)',
+          primaryLinkStore: 'Magalu',
+          altOffer: 'Ruby Rose R$ 15,08 • SuperGloss R$ 11,94',
+          minPrice: 11.94,
+          maxPrice: 29.90,
+          status: 'caiu',
+          statusLabel: 'CAIU HOJE',
+          defaultBought: false,
+          coupon: 'AATIVA10',
+          note: 'Use o cupom AATIVA10 no Magalu ou confira direto no site oficial da Ruby Rose.',
+          quickStores: ['Google Shopping', 'Magalu', 'Ruby Rose', 'Mercado Livre'],
+        },
+        {
+          id: 12,
+          category: 'Quero / Boca',
+          name: 'Gloss Labial Ruby Rose Blow The Glossier One (5g)',
+          query: 'Gloss Labial Ruby Rose Blow The Glossier One',
+          radarPrice: 18.79,
+          radarStore: 'Mercado Livre',
+          bestToday: 14.32,
+          bestStore: 'SuperGloss',
+          primaryLinkStore: 'Google Shopping',
+          altOffer: 'CallFarma por R$ 16,99',
+          minPrice: 14.32,
+          maxPrice: 36.90,
+          status: 'caiu',
+          statusLabel: 'CAIU HOJE',
+          defaultBought: false,
+          coupon: null,
+          note: null,
+          quickStores: ['Google Shopping', 'Mercado Livre', 'Amazon', 'Ruby Rose'],
+        },
+        {
+          id: 13,
+          category: 'Quero / Boca',
+          name: 'Gloss Labial Boca Rosa Hidra Lábios Translúcido — Cor Bege (3g)',
+          query: 'Gloss Labial Boca Rosa Hidra Labios Bege',
+          radarPrice: 27.00,
+          radarStore: 'Sephora',
+          bestToday: 24.95,
+          bestStore: 'Site Boca Rosa',
+          primaryLinkStore: 'Boca Rosa',
+          altOffer: 'Época Cosméticos por R$ 26,68',
+          minPrice: 24.95,
+          maxPrice: 65.86,
+          status: 'caiu',
+          statusLabel: 'CAIU HOJE',
+          defaultBought: false,
+          coupon: null,
+          note: null,
+          quickStores: ['Google Shopping', 'Boca Rosa', 'Sephora', 'Época Cosméticos'],
+        },
+        {
+          id: 14,
+          category: 'Quero / Boca',
+          name: 'Lápis de Contorno Labial Boca Rosa — Cor Castanho Intenso',
+          query: 'Lapis Contorno Labial Boca Rosa Castanho Intenso',
+          radarPrice: 29.00,
+          radarStore: 'Sephora',
+          bestToday: 31.99,
+          bestStore: 'Farmácias São Rafael',
+          primaryLinkStore: 'Sephora',
+          altOffer: 'Chega a R$ 58,90 no Magalu',
+          minPrice: 29.00,
+          maxPrice: 58.90,
+          status: 'piso',
+          statusLabel: 'MENOR PREÇO',
+          defaultBought: false,
+          coupon: null,
+          note: 'Os R$ 29,00 na Sephora continuam imbatíveis frente aos concorrentes.',
+          quickStores: ['Google Shopping', 'Sephora', 'Boca Rosa', 'Magalu'],
+        },
+        {
+          id: 15,
+          category: 'Quero / Boca',
+          name: 'Batom Líquido Instamatte Quem Disse, Berenice? Marrom Marronli 4ml',
+          query: 'Batom Liquido Quem Disse Berenice Marrom Marronli',
+          radarPrice: 49.90,
+          radarStore: 'QDB (+ frete)',
+          bestToday: 34.90,
+          bestStore: 'Site Oficial QDB',
+          primaryLinkStore: 'Quem Disse, Berenice?',
+          altOffer: 'Chega a R$ 63,63 no Magalu',
+          minPrice: 34.90,
+          maxPrice: 63.63,
+          status: 'caiu',
+          statusLabel: 'CAIU HOJE',
+          defaultBought: false,
+          coupon: null,
+          note: 'Queda de R$ 15,00 direto no site oficial da Quem Disse, Berenice?.',
+          quickStores: ['Google Shopping', 'Quem Disse, Berenice?', 'Magalu', 'Amazon'],
+        },
+
+        // --- SKINCARE (2) ---
+        {
+          id: 16,
+          category: 'Skincare',
+          name: 'Sallve Super Ácido Glicólico 10%',
+          query: 'Sallve Super Acido Glicolico 10%',
+          radarPrice: 48.51,
+          radarStore: 'Beleza na Web',
+          bestToday: 53.90,
+          bestStore: 'Mercado Livre',
+          primaryLinkStore: 'Beleza na Web',
+          altOffer: 'Preço cheio chega a R$ 108,90',
+          minPrice: 48.51,
+          maxPrice: 108.90,
+          status: 'piso',
+          statusLabel: 'MENOR PREÇO',
+          defaultBought: false,
+          coupon: null,
+          note: 'Seus R$ 48,51 na Beleza na Web seguem como a melhor referência do mercado.',
+          quickStores: ['Google Shopping', 'Beleza na Web', 'Mercado Livre', 'Amazon'],
+        },
+        {
+          id: 17,
+          category: 'Skincare',
+          name: 'Creamy Ácido Glicólico 10% (30g)',
+          query: 'Creamy Acido Glicolico 30g',
+          radarPrice: 69.38,
+          radarStore: 'Drogasil',
+          bestToday: 46.47,
+          bestStore: 'Mafra Especialidades',
+          primaryLinkStore: 'Creamy',
+          altOffer: 'Refil oficial R$ 45,48 no Site Creamy',
+          minPrice: 45.48,
+          maxPrice: 100.70,
+          status: 'caiu',
+          statusLabel: 'CAIU HOJE',
+          defaultBought: false,
+          coupon: 'PRIMEIRA5',
+          note: 'Refil oficial de 30g sai por R$ 45,48 no site da Creamy aplicando o cupom PRIMEIRA5.',
+          quickStores: ['Google Shopping', 'Creamy', 'Drogasil', 'Amazon'],
+        },
+
+        // --- VESTUÁRIO (2) ---
+        {
+          id: 18,
+          category: 'Vestuário',
+          name: 'Tênis Olympikus Treino Feminino — Azul Claro (nº 38)',
+          query: 'Tenis Olympikus Treino Feminino Azul Claro',
+          radarPrice: 265.99,
+          radarStore: 'Netshoes',
+          bestToday: 265.99,
+          bestStore: 'Netshoes',
+          primaryLinkStore: 'Netshoes',
+          altOffer: 'Centauro está por R$ 369,90',
+          minPrice: 265.99,
+          maxPrice: 399.90,
+          status: 'alerta',
+          statusLabel: 'TRAVADO DESDE DIA 11',
+          defaultBought: false,
+          coupon: null,
+          note: 'Parado no mesmo preço desde o dia 11, mas já está com ~30% OFF sobre o valor cheio.',
+          quickStores: ['Google Shopping', 'Netshoes', 'Centauro', 'Amazon'],
+        },
+        {
+          id: 19,
+          category: 'Vestuário',
+          name: 'Tênis de Treino Feminino Under Armour Tribase Reps — Azul (nº 38)',
+          query: 'Tenis Under Armour Tribase Reps Feminino Azul',
+          radarPrice: 278.99,
+          radarStore: 'Netshoes',
+          bestToday: 278.99,
+          bestStore: 'Centauro / Site UA (Pix)',
+          primaryLinkStore: 'Centauro',
+          altOffer: 'Preço cheio: R$ 499,99',
+          minPrice: 278.99,
+          maxPrice: 499.99,
+          status: 'alerta',
+          statusLabel: 'FORMA PEQUENA',
+          defaultBought: false,
+          coupon: null,
+          note: 'Parado desde dia 11. Atenção: compradores relatam forma pequena — considere pegar nº 39.',
+          quickStores: ['Google Shopping', 'Centauro', 'Netshoes', 'Under Armour'],
+        },
+      ];
+
+      // =========================================================================
+      // 3. ESTADO DA APLICAÇÃO & PERSISTÊNCIA (localStorage)
+      // =========================================================================
+      const STORAGE_KEY = 'radar_da_black_2026_bought_v1';
+      const PRODUCTS_STORAGE_KEY = 'radar_da_black_2026_products_v1';
+
+      function loadProducts() {
+        try {
+          const saved = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          }
+        } catch (err) {
+          console.warn('localStorage indisponível para produtos:', err);
+        }
+        return JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+      }
+
+      function saveProducts(list) {
+        try {
+          localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(list));
+        } catch (err) {
+          console.warn('Erro ao salvar produtos no localStorage:', err);
+        }
+      }
+
+      let PRODUCTS = loadProducts();
+
+      function loadBoughtMap() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) return JSON.parse(saved);
+        } catch (err) {
+          console.warn('localStorage indisponível:', err);
+        }
+        const initial = {};
+        PRODUCTS.forEach((p) => {
+          if (p.defaultBought) initial[p.id] = true;
+        });
+        return initial;
+      }
+
+      function saveBoughtMap(map) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+        } catch (err) {
+          console.warn('Erro ao salvar no localStorage:', err);
+        }
+      }
+
+      const state = {
+        search: '',
+        category: 'Todos',
+        statusFilter: 'Todos',
+        sort: 'discount',
+        includeQueroInBudget: true,
+        boughtMap: loadBoughtMap(),
+      };
+
+      const CATEGORIES = [
+        'Todos',
+        'Cabelo',
+        'Maquiagem Essencial',
+        'Quero / Boca',
+        'Skincare',
+        'Vestuário',
+      ];
+
+      const STATUS_CHIPS = [
+        { id: 'Todos', label: 'Todos' },
+        { id: 'caiu', label: 'Caiu Hoje' },
+        { id: 'piso', label: 'Menor Preço' },
+        { id: 'comprado', label: 'Comprados' },
+        { id: 'alerta', label: 'Alertas' },
+      ];
+
+      // =========================================================================
+      // 4. UTILITÁRIOS
+      // =========================================================================
+      function formatBRL(val) {
+        if (val === null || val === undefined || Number.isNaN(val)) return 'Sem preço';
+        return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      }
+
+      function getDiscountPct(item) {
+        if (!item.radarPrice || item.radarPrice <= 0) return 0;
+        const diff = item.radarPrice - item.bestToday;
+        if (diff <= 0) return 0;
+        return Math.round((diff / item.radarPrice) * 100);
+      }
+
+      function getEffectiveStatus(item) {
+        if (state.boughtMap[item.id]) return 'comprado';
+        return item.status;
+      }
+
+      let toastTimer = null;
+      function showToast(msg) {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-message');
+        toastMsg.textContent = msg;
+        toast.classList.add('visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.classList.remove('visible');
+        }, 2300);
+      }
+
+      function copyTextSafe(text, triggerBtn) {
+        try {
+          const tempInput = document.createElement('textarea');
+          tempInput.value = text;
+          tempInput.setAttribute('readonly', '');
+          tempInput.style.position = 'fixed';
+          tempInput.style.left = '-9999px';
+          document.body.appendChild(tempInput);
+          tempInput.select();
+          document.execCommand('copy');
+          document.body.removeChild(tempInput);
+
+          showToast(`Cupom ${text} copiado!`);
+          if (triggerBtn) {
+            const labelEl = triggerBtn.querySelector('.coupon-feedback');
+            if (labelEl) {
+              const original = labelEl.textContent;
+              labelEl.textContent = 'Copiado';
+              setTimeout(() => {
+                labelEl.textContent = original;
+              }, 1800);
+            }
+          }
+        } catch (err) {
+          showToast(`Cupom: ${text}`);
+        }
+      }
+
+      // =========================================================================
+      // 5. CÁLCULO DOS KPIS E TOP BAR
+      // =========================================================================
+      function updateKPIs() {
+        const pool = state.includeQueroInBudget
+          ? PRODUCTS
+          : PRODUCTS.filter((p) => p.category !== 'Quero / Boca');
+
+        let radarSum = 0;
+        let radarCount = 0;
+        let optimizedSum = 0;
+        let savingsSum = 0;
+        let boughtCount = 0;
+        let boughtValue = 0;
+
+        pool.forEach((item) => {
+          const isBought = Boolean(state.boughtMap[item.id]);
+          const bestEffective = item.radarPrice !== null
+            ? Math.min(item.radarPrice, item.bestToday)
+            : item.bestToday;
+
+          if (item.radarPrice !== null) {
+            radarSum += item.radarPrice;
+            radarCount += 1;
+            if (item.bestToday < item.radarPrice) {
+              savingsSum += item.radarPrice - item.bestToday;
+            }
+          }
+
+          optimizedSum += bestEffective;
+
+          if (isBought) {
+            boughtCount += 1;
+            boughtValue += bestEffective;
+          }
+        });
+
+        const savingsPct = radarSum > 0 ? ((savingsSum / radarSum) * 100).toFixed(1) : '0.0';
+        const boughtPct = pool.length > 0 ? Math.round((boughtCount / pool.length) * 100) : 0;
+
+        document.getElementById('kpi-radar-total').textContent = formatBRL(radarSum);
+        document.getElementById('kpi-radar-sub').textContent = `${radarCount} itens precificados (+1 achado hoje)`;
+
+        document.getElementById('kpi-best-total').textContent = formatBRL(optimizedSum);
+        document.getElementById('kpi-best-sub').textContent = `Todos os ${pool.length} itens no menor preço`;
+
+        document.getElementById('kpi-savings-value').textContent = formatBRL(savingsSum);
+        document.getElementById('kpi-savings-pct').textContent = `-${savingsPct}%`;
+        document.getElementById('kpi-savings-sub').textContent =
+          savingsSum > 0
+            ? 'Economia real aproveitando as quedas de hoje'
+            : 'Nenhum item abaixo do radar';
+
+        document.getElementById('kpi-bought-badge').textContent = `${boughtCount} / ${pool.length}`;
+        document.getElementById('kpi-bought-value').textContent = formatBRL(boughtValue);
+        document.getElementById('kpi-bought-bar').style.width = `${boughtPct}%`;
+
+        document.getElementById('topbar-summary').textContent =
+          `Economia potencial de ${formatBRL(savingsSum)} (-${savingsPct}%) • ${pool.length} itens no radar`;
+        document.getElementById('topbar-bought').textContent = `${boughtCount} / ${pool.length} comprados`;
+      }
+
+      // =========================================================================
+      // 6. NAVEGAÇÃO DE CATEGORIAS E FILTROS DE STATUS
+      // =========================================================================
+      function renderCategoryTabs() {
+        const container = document.getElementById('category-tabs');
+        container.innerHTML = CATEGORIES.map((cat) => {
+          const count = cat === 'Todos'
+            ? PRODUCTS.length
+            : PRODUCTS.filter((p) => p.category === cat).length;
+          const active = state.category === cat;
+          return `
+            <button
+              type="button"
+              role="tab"
+              aria-selected="${active}"
+              data-category="${cat}"
+              class="nav-item ${active ? 'active' : ''}"
+            >
+              <span>${cat}</span>
+              <span class="nav-count">(${count})</span>
+            </button>
+          `;
+        }).join('');
+
+        container.querySelectorAll('button').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            state.category = btn.dataset.category;
+            renderAll();
+          });
+        });
+      }
+
+      function renderStatusChips() {
+        const container = document.getElementById('status-chips');
+        container.innerHTML = STATUS_CHIPS.map((chip) => {
+          const active = state.statusFilter === chip.id;
+          return `
+            <button
+              type="button"
+              data-status="${chip.id}"
+              class="filter-btn ${active ? 'active' : ''}"
+            >
+              ${chip.label}
+            </button>
+          `;
+        }).join('');
+
+        container.querySelectorAll('button').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            state.statusFilter = btn.dataset.status;
+            renderAll();
+          });
+        });
+      }
+
+      // =========================================================================
+      // 7. FILTRAGEM, ORDENAÇÃO E RENDERIZAÇÃO DOS CARDS
+      // =========================================================================
+      function getFilteredProducts() {
+        const term = state.search.trim().toLowerCase();
+
+        const filtered = PRODUCTS.filter((item) => {
+          if (state.category !== 'Todos' && item.category !== state.category) return false;
+
+          const effStatus = getEffectiveStatus(item);
+          if (state.statusFilter !== 'Todos' && effStatus !== state.statusFilter) return false;
+
+          if (term) {
+            const haystack = [
+              item.name,
+              item.category,
+              item.radarStore,
+              item.bestStore,
+              item.altOffer || '',
+              item.note || '',
+              item.coupon || '',
+            ]
+              .join(' ')
+              .toLowerCase();
+            if (!haystack.includes(term)) return false;
+          }
+
+          return true;
+        });
+
+        filtered.sort((a, b) => {
+          if (state.sort === 'discount') {
+            const discA = a.radarPrice === null ? 99 : getDiscountPct(a);
+            const discB = b.radarPrice === null ? 99 : getDiscountPct(b);
+            if (discB !== discA) return discB - discA;
+            return a.bestToday - b.bestToday;
+          }
+          if (state.sort === 'price-asc') return a.bestToday - b.bestToday;
+          if (state.sort === 'price-desc') return b.bestToday - a.bestToday;
+          return a.id - b.id;
+        });
+
+        return filtered;
+      }
+
+      function renderTag(item) {
+        const isBought = Boolean(state.boughtMap[item.id]);
+        if (isBought) {
+          return `<span class="tag-status tag-bought">COMPRADO</span>`;
+        }
+        if (item.radarPrice === null) {
+          return `<span class="tag-status">ACHADO HOJE</span>`;
+        }
+        const disc = getDiscountPct(item);
+        if (item.status === 'caiu' && disc > 0) {
+          return `<span class="tag-status">CAIU HOJE -${disc}%</span>`;
+        }
+        if (item.status === 'piso') {
+          return `<span class="tag-status">MENOR PREÇO</span>`;
+        }
+        return `<span class="tag-status tag-alert">${item.statusLabel}</span>`;
+      }
+
+      function renderProducts() {
+        const grid = document.getElementById('products-grid');
+        const emptyState = document.getElementById('empty-state');
+        const resultsCount = document.getElementById('results-count');
+        const resetBtn = document.getElementById('reset-filters-btn');
+
+        const list = getFilteredProducts();
+        resultsCount.textContent = `Mostrando ${list.length} de ${PRODUCTS.length} itens`;
+
+        const hasFilter =
+          state.category !== 'Todos' ||
+          state.statusFilter !== 'Todos' ||
+          state.search.trim() !== '';
+        resetBtn.classList.toggle('visible', hasFilter);
+
+        if (list.length === 0) {
+          grid.innerHTML = '';
+          emptyState.classList.add('visible');
+          if (window.feather) feather.replace();
+          return;
+        }
+
+        emptyState.classList.remove('visible');
+
+        grid.innerHTML = list.map((item) => {
+          const isBought = Boolean(state.boughtMap[item.id]);
+          const disc = getDiscountPct(item);
+          const iconName = CATEGORY_ICONS[item.category] || 'tag';
+
+          // Posição na barra de oscilação (0% a 100%)
+          const range = Math.max(item.maxPrice - item.minPrice, 0.01);
+          const currentForBar = Math.min(Math.max(item.bestToday, item.minPrice), item.maxPrice);
+          const fillPct = Math.max(6, Math.round(((currentForBar - item.minPrice) / range) * 100));
+          const rangeLabel =
+            fillPct <= 22 ? 'Perto da mínima' : fillPct <= 58 ? 'Intermediário' : 'Próximo do cheio';
+
+          const primaryUrl = buildStoreUrl(item.primaryLinkStore, item.query);
+
+          const quickLinksHtml = item.quickStores
+            .map((store) => {
+              const url = buildStoreUrl(store, item.query);
+              return `
+                <a href="${url}" target="_blank" rel="noopener noreferrer" class="quick-link">
+                  <span>${store}</span>
+                  <i data-feather="arrow-up-right"></i>
+                </a>
+              `;
+            })
+            .join('');
+
+          const couponHtml = item.coupon
+            ? `
+              <button type="button" data-coupon="${item.coupon}" class="coupon-btn">
+                <span class="coupon-left">
+                  <i data-feather="scissors"></i>
+                  <span>Cupom: <span class="coupon-code">${item.coupon}</span></span>
+                </span>
+                <span class="coupon-feedback">Copiar</span>
+              </button>
+            `
+            : '';
+
+          const noteHtml = item.note
+            ? item.status === 'alerta'
+              ? `
+                <div class="card-alert-note">
+                  <i data-feather="alert-circle"></i>
+                  <span>${item.note}</span>
+                </div>
+              `
+              : `<p class="card-desc">${item.note}</p>`
+            : item.altOffer
+            ? `<p class="card-desc">${item.altOffer}</p>`
+            : '';
+
+          const strikePrice =
+            item.radarPrice !== null && item.bestToday < item.radarPrice
+              ? item.radarPrice
+              : item.maxPrice > item.bestToday
+              ? item.maxPrice
+              : null;
+
+          const photoSrc = item.image || `img/produtos/produto-${item.id}.jpg`;
+
+          return `
+            <article class="card ${isBought ? 'is-bought' : ''}">
+              <div>
+                <div class="card-visual">
+                  <span class="card-visual-icon">
+                    <i data-feather="${iconName}"></i>
+                  </span>
+                  <img
+                    src="${photoSrc}"
+                    alt="${item.name.replace(/"/g, '&quot;')}"
+                    class="card-photo"
+                    loading="lazy"
+                    onerror="this.style.display='none'"
+                  />
+                  ${renderTag(item)}
+                  <div class="card-visual-meta">
+                    <span class="card-store-highlight">${item.bestStore}</span>
+                    ${disc > 0 ? `<span class="card-drop-highlight">-${disc}%</span>` : ''}
+                  </div>
+                </div>
+
+                <div class="card-body">
+                  <div class="card-category">${item.category} • Ref: ${item.radarStore}</div>
+                  <h3 class="card-title">${item.name}</h3>
+
+                  ${noteHtml}
+
+                  <div class="oscillation-block">
+                    <div class="oscillation-header">
+                      <span>Oscilação 6m</span>
+                      <span>${rangeLabel}</span>
+                    </div>
+                    <div class="oscillation-track" title="Preço atual na faixa: ${formatBRL(item.bestToday)}">
+                      <div class="oscillation-fill" style="width: ${fillPct}%;"></div>
+                    </div>
+                    <div class="oscillation-range">
+                      <span>Mín ${formatBRL(item.minPrice)}</span>
+                      <span>Cheio ${formatBRL(item.maxPrice)}</span>
+                    </div>
+                  </div>
+
+                  <div class="price-box">
+                    <span class="price-current">${formatBRL(item.bestToday)}</span>
+                    ${strikePrice ? `<span class="price-old">${formatBRL(strikePrice)}</span>` : ''}
+                  </div>
+                  <div class="price-ref">
+                    Radar: ${formatBRL(item.radarPrice)}${item.altOffer && item.note ? ` • ${item.altOffer}` : ''}
+                  </div>
+
+                  ${couponHtml}
+                </div>
+              </div>
+
+              <div class="card-actions">
+                <a href="${primaryUrl}" target="_blank" rel="noopener noreferrer" class="btn-cta">
+                  <span>Ver Oferta</span>
+                  <i data-feather="arrow-right"></i>
+                </a>
+
+                <div class="quick-links">
+                  ${quickLinksHtml}
+                </div>
+
+                <div class="bought-row ${isBought ? 'checked' : ''}">
+                  <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input
+                      type="checkbox"
+                      data-bought-id="${item.id}"
+                      ${isBought ? 'checked' : ''}
+                      class="bought-checkbox"
+                    />
+                    <span>${isBought ? 'Comprado' : 'Marcar como comprado'}</span>
+                  </label>
+                  <button type="button" class="card-edit-btn" data-edit-id="${item.id}">
+                    <i data-feather="edit-2"></i>
+                    <span>Editar</span>
+                  </button>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+        // Eventos dos botões de cupom
+        grid.querySelectorAll('.coupon-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            copyTextSafe(btn.dataset.coupon, btn);
+          });
+        });
+
+        // Eventos dos checkboxes de comprado
+        grid.querySelectorAll('.bought-checkbox').forEach((chk) => {
+          chk.addEventListener('change', (e) => {
+            const id = Number(e.target.dataset.boughtId);
+            if (e.target.checked) {
+              state.boughtMap[id] = true;
+              showToast('Item marcado como comprado.');
+            } else {
+              delete state.boughtMap[id];
+              showToast('Item removido de comprados.');
+            }
+            saveBoughtMap(state.boughtMap);
+            renderAll();
+          });
+        });
+
+        // Eventos dos botões de editar
+        grid.querySelectorAll('.card-edit-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const id = Number(btn.dataset.editId);
+            openEditProduct(id);
+          });
+        });
+
+        if (window.feather) {
+          feather.replace();
+        }
+      }
+
+      // =========================================================================
+      // 7.5 GERENCIADOR DE PRODUTOS (LANÇAR / ATUALIZAR)
+      // =========================================================================
+      const managerBox = document.getElementById('manager-box');
+      const managerToggle = document.getElementById('manager-toggle');
+      const managerToggleText = document.getElementById('manager-toggle-text');
+      const editSelect = document.getElementById('f-edit-select');
+      const productForm = document.getElementById('product-form');
+      const deleteBtn = document.getElementById('f-delete-btn');
+      const submitLabel = document.getElementById('f-submit-label');
+
+      function setManagerOpen(isOpen) {
+        managerBox.classList.toggle('open', isOpen);
+        managerToggle.setAttribute('aria-expanded', String(isOpen));
+        managerToggleText.textContent = isOpen ? 'Fechar formulário' : 'Abrir formulário';
+      }
+
+      managerToggle.addEventListener('click', () => {
+        setManagerOpen(!managerBox.classList.contains('open'));
+      });
+
+      function populateEditSelect() {
+        const currentVal = editSelect.value;
+        editSelect.innerHTML =
+          '<option value="">+ Lançar novo produto</option>' +
+          PRODUCTS.map((p) => `<option value="${p.id}">#${p.id} — ${p.name}</option>`).join('');
+        editSelect.value = currentVal;
+      }
+
+      function clearFormFields() {
+        editSelect.value = '';
+        document.getElementById('f-category').value = 'Cabelo';
+        document.getElementById('f-status').value = 'caiu';
+        document.getElementById('f-name').value = '';
+        document.getElementById('f-best-today').value = '';
+        document.getElementById('f-radar-price').value = '';
+        document.getElementById('f-best-store').value = '';
+        document.getElementById('f-radar-store').value = '';
+        document.getElementById('f-min-price').value = '';
+        document.getElementById('f-max-price').value = '';
+        document.getElementById('f-coupon').value = '';
+        document.getElementById('f-status-label').value = '';
+        document.getElementById('f-alt-offer').value = '';
+        document.getElementById('f-note').value = '';
+        document.getElementById('f-image').value = '';
+        deleteBtn.style.display = 'none';
+        submitLabel.textContent = 'Lançar Produto';
+      }
+
+      function loadProductIntoForm(id) {
+        const item = PRODUCTS.find((p) => p.id === id);
+        if (!item) {
+          clearFormFields();
+          return;
+        }
+        editSelect.value = String(item.id);
+        document.getElementById('f-category').value = item.category;
+        document.getElementById('f-status').value = state.boughtMap[item.id] ? 'comprado' : item.status;
+        document.getElementById('f-name').value = item.name;
+        document.getElementById('f-best-today').value = item.bestToday ?? '';
+        document.getElementById('f-radar-price').value = item.radarPrice ?? '';
+        document.getElementById('f-best-store').value = item.bestStore || '';
+        document.getElementById('f-radar-store').value = item.radarStore || '';
+        document.getElementById('f-min-price').value = item.minPrice ?? '';
+        document.getElementById('f-max-price').value = item.maxPrice ?? '';
+        document.getElementById('f-coupon').value = item.coupon || '';
+        document.getElementById('f-status-label').value = item.statusLabel || '';
+        document.getElementById('f-alt-offer').value = item.altOffer || '';
+        document.getElementById('f-note').value = item.note || '';
+        document.getElementById('f-image').value = item.image || '';
+        deleteBtn.style.display = 'inline-block';
+        submitLabel.textContent = 'Salvar Alterações';
+      }
+
+      function openEditProduct(id) {
+        setManagerOpen(true);
+        loadProductIntoForm(id);
+        managerBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      editSelect.addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (!val) {
+          clearFormFields();
+        } else {
+          loadProductIntoForm(Number(val));
+        }
+      });
+
+      document.getElementById('f-cancel-btn').addEventListener('click', clearFormFields);
+
+      deleteBtn.addEventListener('click', () => {
+        const id = Number(editSelect.value);
+        if (!id) return;
+        PRODUCTS = PRODUCTS.filter((p) => p.id !== id);
+        delete state.boughtMap[id];
+        saveProducts(PRODUCTS);
+        saveBoughtMap(state.boughtMap);
+        clearFormFields();
+        renderAll();
+        showToast('Item excluído do Radar.');
+      });
+
+      document.getElementById('f-reset-all-btn').addEventListener('click', () => {
+        PRODUCTS = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+        saveProducts(PRODUCTS);
+        clearFormFields();
+        renderAll();
+        showToast('Lista original de 19 itens restaurada.');
+      });
+
+      productForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const editingId = editSelect.value ? Number(editSelect.value) : null;
+        const name = document.getElementById('f-name').value.trim();
+        const category = document.getElementById('f-category').value;
+        const status = document.getElementById('f-status').value;
+        const bestToday = parseFloat(document.getElementById('f-best-today').value);
+        const radarRaw = document.getElementById('f-radar-price').value;
+        const radarPrice = radarRaw !== '' ? parseFloat(radarRaw) : null;
+        const bestStore = document.getElementById('f-best-store').value.trim();
+        const radarStore = document.getElementById('f-radar-store').value.trim() || 'Referência Radar';
+        const minRaw = document.getElementById('f-min-price').value;
+        const maxRaw = document.getElementById('f-max-price').value;
+        const minPrice = minRaw !== '' ? parseFloat(minRaw) : bestToday;
+        const maxPrice = maxRaw !== '' ? parseFloat(maxRaw) : Math.max(bestToday, radarPrice || bestToday);
+        const coupon = document.getElementById('f-coupon').value.trim() || null;
+        const statusLabelInput = document.getElementById('f-status-label').value.trim();
+        const altOffer = document.getElementById('f-alt-offer').value.trim() || null;
+        const note = document.getElementById('f-note').value.trim() || null;
+        const image = document.getElementById('f-image').value.trim() || null;
+
+        const defaultLabels = {
+          caiu: 'CAIU HOJE',
+          piso: 'MENOR PREÇO',
+          alerta: 'ATENÇÃO',
+          comprado: 'COMPRADO',
+        };
+        const statusLabel = statusLabelInput || defaultLabels[status] || 'OFERTA';
+        const primaryLinkStore = STORE_BUILDERS[bestStore] ? bestStore : 'Google Shopping';
+
+        if (editingId) {
+          const idx = PRODUCTS.findIndex((p) => p.id === editingId);
+          if (idx !== -1) {
+            PRODUCTS[idx] = {
+              ...PRODUCTS[idx],
+              category,
+              name,
+              query: name,
+              radarPrice,
+              radarStore,
+              bestToday,
+              bestStore,
+              primaryLinkStore,
+              altOffer,
+              minPrice,
+              maxPrice,
+              status,
+              statusLabel,
+              coupon,
+              note,
+              image,
+            };
+            if (status === 'comprado') {
+              state.boughtMap[editingId] = true;
+            } else {
+              delete state.boughtMap[editingId];
+            }
+            saveBoughtMap(state.boughtMap);
+            saveProducts(PRODUCTS);
+            clearFormFields();
+            renderAll();
+            showToast('Produto atualizado com sucesso.');
+          }
+        } else {
+          const nextId = PRODUCTS.reduce((max, p) => Math.max(max, p.id), 0) + 1;
+          const newItem = {
+            id: nextId,
+            category,
+            name,
+            query: name,
+            radarPrice,
+            radarStore,
+            bestToday,
+            bestStore,
+            primaryLinkStore,
+            altOffer,
+            minPrice,
+            maxPrice,
+            status,
+            statusLabel,
+            defaultBought: status === 'comprado',
+            coupon,
+            note,
+            image,
+            quickStores: ['Google Shopping', 'Amazon', 'Mercado Livre', 'Magalu'],
+          };
+          PRODUCTS.unshift(newItem);
+          if (status === 'comprado') {
+            state.boughtMap[nextId] = true;
+            saveBoughtMap(state.boughtMap);
+          }
+          saveProducts(PRODUCTS);
+          clearFormFields();
+          renderAll();
+          showToast('Novo produto lançado no Radar!');
+        }
+      });
+
+      function renderAll() {
+        populateEditSelect();
+        renderCategoryTabs();
+        renderStatusChips();
+        updateKPIs();
+        renderProducts();
+      }
+
+      // =========================================================================
+      // 8. LISTENERS GLOBAIS
+      // =========================================================================
+      const searchInput = document.getElementById('search-input');
+      const clearSearchBtn = document.getElementById('clear-search');
+
+      searchInput.addEventListener('input', (e) => {
+        state.search = e.target.value;
+        clearSearchBtn.classList.toggle('visible', Boolean(state.search));
+        renderProducts();
+      });
+
+      clearSearchBtn.addEventListener('click', () => {
+        state.search = '';
+        searchInput.value = '';
+        clearSearchBtn.classList.remove('visible');
+        renderProducts();
+      });
+
+      document.getElementById('sort-select').addEventListener('change', (e) => {
+        state.sort = e.target.value;
+        renderProducts();
+      });
+
+      document.getElementById('toggle-quero-budget').addEventListener('change', (e) => {
+        state.includeQueroInBudget = e.target.checked;
+        updateKPIs();
+      });
+
+      function resetFilters() {
+        state.search = '';
+        state.category = 'Todos';
+        state.statusFilter = 'Todos';
+        searchInput.value = '';
+        clearSearchBtn.classList.remove('visible');
+        renderAll();
+      }
+
+      document.getElementById('reset-filters-btn').addEventListener('click', resetFilters);
+      document.getElementById('empty-reset-btn').addEventListener('click', resetFilters);
+
+      // =========================================================================
+      // 8.5 API CLIENT-SIDE PARA BUSCAR IMAGENS E PREÇOS (CELULAR / COMPUTADOR)
+      // =========================================================================
+      async function fetchProductFromAPI(query) {
+        const cleanQuery = String(query || '').trim();
+        if (!cleanQuery) return { image: null, price: null, store: null };
+
+        let image = null;
+        let price = null;
+        let store = null;
+
+        // 1) Tenta API pública do Mercado Livre Brasil direto do navegador
+        try {
+          const mlUrl = `https://api.mercadolibre.com/sites/MLB/search?q=${encodeURIComponent(cleanQuery)}&limit=5`;
+          const resp = await fetch(mlUrl, { headers: { Accept: 'application/json' } });
+          if (resp.ok) {
+            const data = await resp.json();
+            const results = data.results || [];
+            if (results.length > 0) {
+              const valid = results.filter((r) => typeof r.price === 'number' && r.price > 0);
+              const best = valid.length > 0
+                ? valid.reduce((a, b) => (b.price < a.price ? b : a))
+                : results[0];
+              if (best.price) {
+                price = Number(best.price);
+                store = 'Mercado Livre';
+              }
+              if (best.thumbnail) {
+                image = best.thumbnail
+                  .replace(/^http:\/\//i, 'https://')
+                  .replace(/-I\.jpg$/i, '-O.jpg');
+              }
+            }
+          }
+        } catch (_) {
+          // Fallback abaixo
+        }
+
+        // 2) Fallback de imagem via Bing Images (thumbnails confiáveis) usando proxy CORS público
+        if (!image) {
+          try {
+            const bingUrl = `https://www.bing.com/images/search?q=${encodeURIComponent(cleanQuery + ' produto')}&first=1`;
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(bingUrl)}`;
+            const resp = await fetch(proxyUrl);
+            if (resp.ok) {
+              const html = await resp.text();
+              const thumbMatch = html.match(/https:\/\/tse\d\.mm\.bing\.net\/th\?id=OIP\.[^"&]+/);
+              if (thumbMatch) {
+                image = thumbMatch[0].replace(/&amp;/g, '&');
+              } else {
+                const murlMatch = html.match(/murl&quot;:&quot;(https?:\/\/[^&]+?\.(?:jpg|jpeg|png|webp))/i);
+                if (murlMatch) {
+                  image = murlMatch[1];
+                }
+              }
+            }
+          } catch (_) {
+            // Sem imagem disponível
+          }
+        }
+
+        return { image, price, store };
+      }
+
+      // Botão "Buscar Foto" no formulário (1 clique pelo celular ou computador)
+      const fetchImgBtn = document.getElementById('f-fetch-img-btn');
+      const fetchImgLabel = document.getElementById('f-fetch-img-label');
+      if (fetchImgBtn) {
+        fetchImgBtn.addEventListener('click', async () => {
+          const nameVal = document.getElementById('f-name').value.trim();
+          if (!nameVal) {
+            showToast('Digite o nome do produto primeiro.');
+            document.getElementById('f-name').focus();
+            return;
+          }
+          fetchImgBtn.disabled = true;
+          fetchImgLabel.textContent = 'Buscando...';
+          try {
+            const res = await fetchProductFromAPI(nameVal);
+            if (res.image) {
+              document.getElementById('f-image').value = res.image;
+              showToast('Foto encontrada e preenchida!');
+            } else {
+              showToast('Não foi possível encontrar foto automaticamente.');
+            }
+          } finally {
+            fetchImgBtn.disabled = false;
+            fetchImgLabel.textContent = 'Buscar Foto';
+          }
+        });
+      }
+
+      // Botão Atualizar Preços & Fotos (funciona no celular, computador ou servidor local)
+      const syncBtn = document.getElementById('sync-prices-btn');
+      const syncLabel = document.getElementById('sync-prices-label');
+      syncBtn.addEventListener('click', async () => {
+        syncBtn.disabled = true;
+        syncLabel.textContent = 'Atualizando...';
+        try {
+          let usedLocalServer = false;
+          let updatedCount = 0;
+
+          // Se estiver rodando localmente, tenta primeiro o servidor Python
+          if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            try {
+              const resp = await fetch('http://localhost:8765/api/atualizar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  items: PRODUCTS.map((p) => ({ id: p.id, name: p.name, query: p.query })),
+                }),
+              });
+              if (resp.ok) {
+                const data = await resp.json();
+                const cacheBust = Date.now();
+                (data.results || []).forEach((r) => {
+                  const prod = PRODUCTS.find((p) => p.id === r.id);
+                  if (!prod) return;
+                  if (r.image) {
+                    prod.image = `${r.image}?v=${cacheBust}`;
+                    updatedCount += 1;
+                  }
+                  if (r.price && r.price > 0 && r.price < prod.bestToday) {
+                    prod.bestToday = r.price;
+                    if (r.store) prod.bestStore = r.store;
+                  }
+                });
+                usedLocalServer = true;
+              }
+            } catch (_) {
+              // Servidor local não está rodando; segue para API direta no navegador
+            }
+          }
+
+          // Modo direto pelo navegador (funciona no GitHub Pages, celular e computador)
+          if (!usedLocalServer) {
+            const total = PRODUCTS.length;
+            for (let i = 0; i < total; i += 1) {
+              const prod = PRODUCTS[i];
+              syncLabel.textContent = `Buscando ${i + 1}/${total}...`;
+              const res = await fetchProductFromAPI(prod.query || prod.name);
+              if (res.image) {
+                prod.image = res.image;
+                updatedCount += 1;
+              }
+              if (res.price && res.price > 0 && res.price < prod.bestToday) {
+                prod.bestToday = res.price;
+                if (res.store) prod.bestStore = res.store;
+              }
+            }
+          }
+
+          saveProducts(PRODUCTS);
+          renderAll();
+          showToast(
+            updatedCount > 0
+              ? `Atualizado! ${updatedCount} fotos/preços sincronizados.`
+              : 'Nenhuma foto nova encontrada no momento.'
+          );
+        } catch (err) {
+          showToast('Erro ao buscar imagens. Verifique sua conexão.');
+        } finally {
+          syncBtn.disabled = false;
+          syncLabel.textContent = 'Atualizar Preços & Fotos';
+        }
+      });
+
+      // Inicialização
+      renderAll();
+    })();
+  </script>
+</body>
+
+</html>
