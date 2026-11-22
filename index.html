@@ -2689,6 +2689,32 @@
       const deleteBtn = document.getElementById('f-delete-btn');
       const submitLabel = document.getElementById('f-submit-label');
 
+      const ADMIN_PASS = '334466';
+      const ADMIN_SESSION_KEY = 'radar_manu_admin_unlocked_v1';
+
+      function isAdminUnlocked() {
+        try {
+          return sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function requireAdminAuth() {
+        if (isAdminUnlocked()) return true;
+        const entered = window.prompt('Digite a senha de administrador para editar:');
+        if (entered === null) return false;
+        if (entered.trim() === ADMIN_PASS) {
+          try {
+            sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+          } catch (_) {}
+          showToast('Modo administrador liberado.');
+          return true;
+        }
+        showToast('Senha incorreta.');
+        return false;
+      }
+
       function setManagerOpen(isOpen) {
         managerBox.classList.toggle('open', isOpen);
         managerToggle.setAttribute('aria-expanded', String(isOpen));
@@ -2696,7 +2722,9 @@
       }
 
       managerToggle.addEventListener('click', () => {
-        setManagerOpen(!managerBox.classList.contains('open'));
+        const willOpen = !managerBox.classList.contains('open');
+        if (willOpen && !requireAdminAuth()) return;
+        setManagerOpen(willOpen);
       });
 
       function populateEditSelect() {
@@ -2848,6 +2876,7 @@
       }
 
       function openEditProduct(id) {
+        if (!requireAdminAuth()) return;
         setManagerOpen(true);
         loadProductIntoForm(id);
         managerBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3127,6 +3156,7 @@
       const syncBtn = document.getElementById('sync-prices-btn');
       const syncLabel = document.getElementById('sync-prices-label');
       syncBtn.addEventListener('click', async () => {
+        if (!requireAdminAuth()) return;
         syncBtn.disabled = true;
         syncLabel.textContent = 'Atualizando...';
         try {
