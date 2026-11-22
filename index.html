@@ -1544,7 +1544,7 @@
                     style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 12px; border: 1px dashed var(--cor-base-1); background-color: var(--cor-base-3); color: var(--cor-titulos); border-radius: 2px; cursor: pointer; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500;"
                   >
                     <i data-feather="upload" style="width: 14px; height: 14px;"></i>
-                    <span id="f-image-file-label">Enviar foto da galeria / PC</span>
+                    <span id="f-image-file-label">Enviar foto (galeria / PC) ou Ctrl+V</span>
                     <input id="f-image-file" type="file" accept="image/*" style="display: none;" />
                   </label>
                   <input id="f-image" type="text" placeholder="Ou cole o link/caminho: https://... ou img/produtos/produto-1.jpg" />
@@ -2760,25 +2760,43 @@
         });
       }
 
+      async function applyImageFile(file) {
+        if (!file) return;
+        imageFileLabel.textContent = 'Processando foto...';
+        try {
+          const dataUrl = await compressImageFile(file);
+          imageInput.value = dataUrl;
+          updateImagePreview(dataUrl);
+          imageFileLabel.textContent = 'Foto carregada! (trocar ou Ctrl+V)';
+          showToast('Foto pronta! Clique em Salvar Alterações.');
+        } catch (_) {
+          imageFileLabel.textContent = 'Enviar foto (galeria / PC) ou Ctrl+V';
+          showToast('Não foi possível ler essa imagem.');
+        }
+      }
+
       if (imageFileInput) {
         imageFileInput.addEventListener('change', async (e) => {
           const file = e.target.files && e.target.files[0];
-          if (!file) return;
-          imageFileLabel.textContent = 'Processando foto...';
-          try {
-            const dataUrl = await compressImageFile(file);
-            imageInput.value = dataUrl;
-            updateImagePreview(dataUrl);
-            imageFileLabel.textContent = 'Foto carregada! (trocar)';
-            showToast('Foto pronta! Clique em Salvar Alterações.');
-          } catch (_) {
-            imageFileLabel.textContent = 'Enviar foto da galeria / PC';
-            showToast('Não foi possível ler essa imagem.');
-          } finally {
-            imageFileInput.value = '';
-          }
+          await applyImageFile(file);
+          imageFileInput.value = '';
         });
       }
+
+      // Permite colar imagem (Ctrl+V) direto quando o formulário estiver aberto
+      document.addEventListener('paste', async (e) => {
+        if (!managerBox.classList.contains('open')) return;
+        const items = e.clipboardData && e.clipboardData.items;
+        if (!items) return;
+        for (const item of items) {
+          if (item.type && item.type.startsWith('image/')) {
+            e.preventDefault();
+            const file = item.getAsFile();
+            await applyImageFile(file);
+            return;
+          }
+        }
+      });
 
       function clearFormFields() {
         editSelect.value = '';
