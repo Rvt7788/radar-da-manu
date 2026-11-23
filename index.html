@@ -2526,18 +2526,41 @@
           if (!resp.ok) return;
           const rows = await resp.json();
           if (Array.isArray(rows) && rows.length > 0 && Array.isArray(rows[0].products) && rows[0].products.length > 0) {
-            PRODUCTS = rows[0].products.map((p) => {
+            const cloudList = rows[0].products.map((p) => {
               if (p.category === 'Maquiagem Essencial' || p.category === 'Quero / Boca') {
                 return { ...p, category: 'Maquiagem' };
               }
               return p;
             });
-            state.boughtMap = rows[0].bought_map || {};
+
+            // Merge inteligente por ID: mantém a versão mais recente (updatedAt) e nunca apaga itens novos locais
+            const mergedMap = new Map();
+            cloudList.forEach((p) => mergedMap.set(p.id, p));
+
+            let hasLocalNewer = false;
+            PRODUCTS.forEach((localItem) => {
+              const cloudItem = mergedMap.get(localItem.id);
+              if (!cloudItem) {
+                if (localItem.createdAt || localItem.updatedAt) {
+                  mergedMap.set(localItem.id, localItem);
+                  hasLocalNewer = true;
+                }
+              } else if ((localItem.updatedAt || 0) > (cloudItem.updatedAt || 0)) {
+                mergedMap.set(localItem.id, localItem);
+                hasLocalNewer = true;
+              }
+            });
+
+            PRODUCTS = Array.from(mergedMap.values());
+            state.boughtMap = { ...(rows[0].bought_map || {}), ...state.boughtMap };
             try {
               localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(PRODUCTS));
               localStorage.setItem(STORAGE_KEY, JSON.stringify(state.boughtMap));
             } catch (_) {}
             renderAll();
+            if (hasLocalNewer) {
+              saveCloudState();
+            }
           } else {
             // Inicializa a nuvem na primeira vez com a lista atual
             saveCloudState();
