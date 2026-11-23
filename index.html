@@ -2478,12 +2478,11 @@
       let cloudSaveTimer = null;
       async function saveCloudState() {
         try {
-          await fetch(`${SUPABASE_URL}/rest/v1/radar_state?on_conflict=id`, {
+          const resp = await fetch(`${SUPABASE_URL}/rest/v1/radar_state?on_conflict=id`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               apikey: SUPABASE_KEY,
-              Authorization: `Bearer ${SUPABASE_KEY}`,
               Prefer: 'resolution=merge-duplicates',
             },
             body: JSON.stringify({
@@ -2493,6 +2492,10 @@
               updated_at: new Date().toISOString(),
             }),
           });
+          if (!resp.ok) {
+            const errBody = await resp.text().catch(() => '');
+            console.warn('Supabase erro ao salvar:', resp.status, errBody);
+          }
         } catch (err) {
           console.warn('Erro ao sincronizar com Supabase:', err);
         }
@@ -2500,7 +2503,7 @@
 
       function scheduleCloudSave() {
         clearTimeout(cloudSaveTimer);
-        cloudSaveTimer = setTimeout(saveCloudState, 250);
+        saveCloudState();
       }
 
       async function loadCloudState() {
@@ -2510,7 +2513,6 @@
             {
               headers: {
                 apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`,
               },
             }
           );
@@ -3596,6 +3598,7 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
             saveProducts(PRODUCTS);
             saveBoughtMap(state.boughtMap);
             aiCmdInput.value = '';
+            setActivePanel(null);
             renderAll();
             showToast('Alterações aplicadas com sucesso!');
           } catch (err) {
@@ -3794,6 +3797,7 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
             };
             saveProducts(PRODUCTS);
             clearFormFields();
+            setActivePanel(null);
             renderAll();
             showToast('Produto atualizado com sucesso.');
           }
@@ -3826,6 +3830,7 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
           PRODUCTS.unshift(newItem);
           saveProducts(PRODUCTS);
           clearFormFields();
+          setActivePanel(null);
           renderAll();
           showToast('Novo produto lançado no Radar!');
         }
