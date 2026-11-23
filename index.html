@@ -788,6 +788,55 @@
       flex-direction: column;
     }
 
+    .manager-split-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid transparent;
+    }
+
+    .manager-box.open .manager-split-bar {
+      border-bottom-color: var(--border-light);
+    }
+
+    .manager-split-btn {
+      padding: 13px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--cor-titulos);
+      background-color: var(--bg-white);
+      transition: var(--transition-smooth);
+    }
+
+    .manager-split-btn:first-child {
+      border-right: 1px solid var(--border-light);
+    }
+
+    .manager-split-btn:hover,
+    .manager-split-btn.active {
+      background-color: var(--cor-base-3);
+      color: var(--cor-cta);
+    }
+
+    .manager-split-btn i {
+      width: 15px;
+      height: 15px;
+    }
+
+    .manager-panel {
+      display: none;
+      padding: 20px 24px;
+    }
+
+    .manager-panel.open {
+      display: block;
+    }
+
     .ai-split-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -901,7 +950,56 @@
     }
 
     @media (max-width: 768px) {
-      .ai-split-grid {
+      .manager-split-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid transparent;
+    }
+
+    .manager-box.open .manager-split-bar {
+      border-bottom-color: var(--border-light);
+    }
+
+    .manager-split-btn {
+      padding: 13px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--cor-titulos);
+      background-color: var(--bg-white);
+      transition: var(--transition-smooth);
+    }
+
+    .manager-split-btn:first-child {
+      border-right: 1px solid var(--border-light);
+    }
+
+    .manager-split-btn:hover,
+    .manager-split-btn.active {
+      background-color: var(--cor-base-3);
+      color: var(--cor-cta);
+    }
+
+    .manager-split-btn i {
+      width: 15px;
+      height: 15px;
+    }
+
+    .manager-panel {
+      display: none;
+      padding: 20px 24px;
+    }
+
+    .manager-panel.open {
+      display: block;
+    }
+
+    .ai-split-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -1584,24 +1682,22 @@
   </header>
 
   <main>
-    <!-- CAIXA PARA ATUALIZAR E LANÇAR NOVOS PRODUTOS -->
-    <section id="manager-box" class="manager-box" aria-label="Gerenciar produtos do Radar">
-      <button type="button" id="manager-toggle" class="manager-header" aria-expanded="false">
-        <div class="manager-header-left">
-          <i data-feather="plus-circle"></i>
-          <div>
-            <div class="manager-title" id="manager-heading">Lançar ou Atualizar Produto</div>
-            <div class="manager-sub">Adicione novos itens ao Radar ou atualize preços, lojas, cupons e alertas (salvo localmente)</div>
-          </div>
-        </div>
-        <span class="manager-toggle-label">
-          <span id="manager-toggle-text">Abrir formulário</span>
-          <i data-feather="chevron-down"></i>
-        </span>
-      </button>
+    <!-- TARJA COMPACTA: EDIÇÃO MANUAL (ESQ) | LER COM IA (DIR) -->
+    <section id="manager-box" class="manager-box" aria-label="Gerenciar produtos">
+      <div class="manager-split-bar">
+        <button type="button" id="manager-toggle" class="manager-split-btn" aria-expanded="false">
+          <i data-feather="edit-3"></i>
+          <span>Edição Manual</span>
+        </button>
+        <button type="button" id="ai-panel-toggle" class="manager-split-btn" aria-expanded="false">
+          <i data-feather="cpu"></i>
+          <span>Ler com IA</span>
+        </button>
+      </div>
 
-      <div class="manager-body">
-        <div class="ai-split-grid">
+      <!-- Painel 1: Ler com IA -->
+      <div id="manager-ai-panel" class="manager-panel">
+        <div class="ai-split-grid" style="margin-bottom: 0;">
           <!-- Container 1: Ler Print com IA -->
           <div class="ai-box">
             <div class="ai-box-title">
@@ -1662,7 +1758,10 @@
             </div>
           </div>
         </div>
+      </div>
 
+      <!-- Painel 2: Edição Manual -->
+      <div id="manager-manual-panel" class="manager-panel">
         <form id="product-form">
           <div class="form-grid">
             <div class="form-field span-2">
@@ -1693,6 +1792,11 @@
             </div>
 
             <div class="form-field">
+              <label for="f-max-price">Preço Cheio (R$)</label>
+              <input id="f-max-price" type="number" step="0.01" min="0" placeholder="89.90" />
+            </div>
+
+            <div class="form-field span-2">
               <label for="f-best-store">Loja Atual *</label>
               <input id="f-best-store" type="text" placeholder="Ex: Amazon, Sephora, Magalu" required />
             </div>
@@ -1775,21 +1879,17 @@
           <div class="sort-wrap">
             <label for="sort-select">Ordenar:</label>
             <select id="sort-select">
-              <option value="discount">Maior Desconto vs. Radar</option>
-              <option value="price-asc">Menor Preço Hoje</option>
-              <option value="price-desc">Maior Preço Hoje</option>
-              <option value="category">Categoria</option>
+              <option value="price-asc">Menor Preço</option>
+              <option value="price-desc">Maior Preço</option>
+              <option value="updated-desc">Data de Modificação</option>
+              <option value="created-desc">Data de Inserção</option>
             </select>
           </div>
         </div>
       </div>
 
       <div class="controls-bottom">
-        <div class="status-filters" id="status-chips">
-          <!-- Preenchido via JS -->
-        </div>
-
-        <div class="results-meta">
+        <div class="results-meta" style="margin-left: auto;">
           <span id="results-count">Mostrando 19 de 19 itens</span>
           <button id="reset-filters-btn" type="button" class="reset-link">Limpar filtros</button>
         </div>
@@ -2390,7 +2490,7 @@
         search: '',
         category: 'Todos',
         statusFilter: 'Todos',
-        sort: 'discount',
+        sort: 'price-asc',
         boughtMap: loadBoughtMap(),
         expandedMap: {},
       };
@@ -2511,26 +2611,7 @@
       }
 
       function renderStatusChips() {
-        const container = document.getElementById('status-chips');
-        container.innerHTML = STATUS_CHIPS.map((chip) => {
-          const active = state.statusFilter === chip.id;
-          return `
-            <button
-              type="button"
-              data-status="${chip.id}"
-              class="filter-btn ${active ? 'active' : ''}"
-            >
-              ${chip.label}
-            </button>
-          `;
-        }).join('');
-
-        container.querySelectorAll('button').forEach((btn) => {
-          btn.addEventListener('click', () => {
-            state.statusFilter = btn.dataset.status;
-            renderAll();
-          });
-        });
+        // Filtros de tags removidos
       }
 
       // =========================================================================
@@ -2564,14 +2645,14 @@
         });
 
         filtered.sort((a, b) => {
-          if (state.sort === 'discount') {
-            const discA = a.radarPrice === null ? 99 : getDiscountPct(a);
-            const discB = b.radarPrice === null ? 99 : getDiscountPct(b);
-            if (discB !== discA) return discB - discA;
-            return a.bestToday - b.bestToday;
-          }
           if (state.sort === 'price-asc') return a.bestToday - b.bestToday;
           if (state.sort === 'price-desc') return b.bestToday - a.bestToday;
+          if (state.sort === 'updated-desc') {
+            return (b.updatedAt || b.id) - (a.updatedAt || a.id);
+          }
+          if (state.sort === 'created-desc') {
+            return (b.createdAt || b.id) - (a.createdAt || a.id);
+          }
           return a.id - b.id;
         });
 
@@ -2671,12 +2752,7 @@
             ? `<p class="card-desc">${item.altOffer}</p>`
             : '';
 
-          const strikePrice =
-            item.radarPrice !== null && item.bestToday < item.radarPrice
-              ? item.radarPrice
-              : item.maxPrice > item.bestToday
-              ? item.maxPrice
-              : null;
+          const strikePrice = item.maxPrice > item.bestToday ? item.maxPrice : null;
 
           const photoSrc = item.image || `img/produtos/produto-${item.id}.jpg`;
           const isExpanded = Boolean(state.expandedMap[item.id]);
@@ -2695,10 +2771,8 @@
                     loading="lazy"
                     onerror="this.style.display='none'"
                   />
-                  ${renderTag(item)}
                   <div class="card-visual-meta">
                     <span class="card-store-highlight">${item.bestStore}</span>
-                    ${disc > 0 ? `<span class="card-drop-highlight">-${disc}%</span>` : ''}
                   </div>
                 </div>
 
@@ -2827,6 +2901,7 @@
               PRODUCTS[idx].bestStore = newStore;
               PRODUCTS[idx].primaryLinkStore = STORE_BUILDERS[newStore] ? newStore : 'Google Shopping';
               if (newPrice < PRODUCTS[idx].minPrice) PRODUCTS[idx].minPrice = newPrice;
+              PRODUCTS[idx].updatedAt = Date.now();
               saveProducts(PRODUCTS);
               renderAll();
               showToast('Preço e loja atualizados!');
@@ -2893,7 +2968,9 @@
       // =========================================================================
       const managerBox = document.getElementById('manager-box');
       const managerToggle = document.getElementById('manager-toggle');
-      const managerToggleText = document.getElementById('manager-toggle-text');
+      const aiPanelToggle = document.getElementById('ai-panel-toggle');
+      const managerManualPanel = document.getElementById('manager-manual-panel');
+      const managerAiPanel = document.getElementById('manager-ai-panel');
       const editSelect = document.getElementById('f-edit-select');
       const productForm = document.getElementById('product-form');
       const deleteBtn = document.getElementById('f-delete-btn');
@@ -2925,16 +3002,35 @@
         return false;
       }
 
+      let activePanel = null; // 'manual' | 'ai' | null
+
+      function setActivePanel(panel) {
+        activePanel = panel;
+        const isManual = panel === 'manual';
+        const isAi = panel === 'ai';
+        managerBox.classList.toggle('open', Boolean(panel));
+        managerManualPanel.classList.toggle('open', isManual);
+        managerAiPanel.classList.toggle('open', isAi);
+        managerToggle.classList.toggle('active', isManual);
+        aiPanelToggle.classList.toggle('active', isAi);
+        managerToggle.setAttribute('aria-expanded', String(isManual));
+        aiPanelToggle.setAttribute('aria-expanded', String(isAi));
+      }
+
       function setManagerOpen(isOpen) {
-        managerBox.classList.toggle('open', isOpen);
-        managerToggle.setAttribute('aria-expanded', String(isOpen));
-        managerToggleText.textContent = isOpen ? 'Fechar formulário' : 'Abrir formulário';
+        setActivePanel(isOpen ? 'manual' : null);
       }
 
       managerToggle.addEventListener('click', () => {
-        const willOpen = !managerBox.classList.contains('open');
+        const willOpen = activePanel !== 'manual';
         if (willOpen && !requireAdminAuth()) return;
-        setManagerOpen(willOpen);
+        setActivePanel(willOpen ? 'manual' : null);
+      });
+
+      aiPanelToggle.addEventListener('click', () => {
+        const willOpen = activePanel !== 'ai';
+        if (willOpen && !requireAdminAuth()) return;
+        setActivePanel(willOpen ? 'ai' : null);
       });
 
       function populateEditSelect() {
@@ -3041,6 +3137,7 @@
         document.getElementById('f-category').value = 'Cabelo';
         document.getElementById('f-name').value = '';
         document.getElementById('f-best-today').value = '';
+        document.getElementById('f-max-price').value = '';
         document.getElementById('f-best-store').value = '';
         document.getElementById('f-note').value = '';
         document.getElementById('f-image').value = '';
@@ -3060,6 +3157,7 @@
         document.getElementById('f-category').value = item.category;
         document.getElementById('f-name').value = item.name;
         document.getElementById('f-best-today').value = item.bestToday ?? '';
+        document.getElementById('f-max-price').value = item.maxPrice ?? '';
         document.getElementById('f-best-store').value = item.bestStore || '';
         document.getElementById('f-note').value = item.note || '';
         document.getElementById('f-image').value = item.image || '';
@@ -3514,10 +3612,13 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
         const name = document.getElementById('f-name').value.trim();
         const category = document.getElementById('f-category').value;
         const bestToday = parseFloat(document.getElementById('f-best-today').value);
+        const maxRaw = document.getElementById('f-max-price').value;
+        const maxPrice = maxRaw !== '' ? parseFloat(maxRaw) : bestToday;
         const bestStore = document.getElementById('f-best-store').value.trim();
         const note = document.getElementById('f-note').value.trim() || null;
         const image = document.getElementById('f-image').value.trim() || null;
         const primaryLinkStore = STORE_BUILDERS[bestStore] ? bestStore : 'Google Shopping';
+        const now = Date.now();
 
         if (editingId) {
           const idx = PRODUCTS.findIndex((p) => p.id === editingId);
@@ -3532,9 +3633,10 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
               bestStore,
               primaryLinkStore,
               minPrice: Math.min(existing.minPrice ?? bestToday, bestToday),
-              maxPrice: Math.max(existing.maxPrice ?? bestToday, bestToday),
+              maxPrice: Math.max(maxPrice, bestToday),
               note,
               image,
+              updatedAt: now,
             };
             saveProducts(PRODUCTS);
             clearFormFields();
@@ -3549,19 +3651,21 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
             name,
             query: name,
             radarPrice: null,
-            radarStore: 'Referência Radar',
+            radarStore: 'Referência',
             bestToday,
             bestStore,
             primaryLinkStore,
             altOffer: null,
             minPrice: bestToday,
-            maxPrice: bestToday,
+            maxPrice: Math.max(maxPrice, bestToday),
             status: 'caiu',
-            statusLabel: 'CAIU HOJE',
+            statusLabel: '',
             defaultBought: false,
             coupon: null,
             note,
             image,
+            createdAt: now,
+            updatedAt: now,
             quickStores: ['Google Shopping', 'Amazon', 'Mercado Livre', 'Magalu'],
           };
           PRODUCTS.unshift(newItem);
