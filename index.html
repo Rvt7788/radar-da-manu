@@ -190,12 +190,15 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      width: 100%;
       margin-bottom: 6px;
     }
 
     .brand-logo {
       max-height: 44px;
+      max-width: 100%;
       width: auto;
+      height: auto;
       object-fit: contain;
       display: block;
       transition: transform 0.5s ease;
@@ -1392,9 +1395,32 @@
     }
 
     @media (max-width: 480px) {
+      .header-content {
+        padding: 16px 4% 6px 4%;
+      }
+
+      .brand-logo {
+        max-width: 82vw;
+        max-height: 36px;
+      }
+
+      .brand-subtitle {
+        font-size: 0.68rem;
+        letter-spacing: 1px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-field.span-2,
+      .form-field.span-4 {
+        grid-column: span 1;
+      }
+
       .grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 20px 12px;
+        gap: 18px 12px;
       }
 
       .btn-cta {
@@ -1525,19 +1551,33 @@
                 OK
               </button>
             </div>
-            <div id="f-gemini-ready-wrap" style="display: none; align-items: center; gap: 10px;">
-              <label
-                for="f-ai-print-file"
-                class="btn-cta"
-                style="width: auto; padding: 9px 14px; cursor: pointer; font-size: 0.75rem;"
-              >
-                <i data-feather="camera" style="width: 13px; height: 13px;"></i>
-                <span id="f-ai-print-label">Ler Print com IA</span>
-                <input id="f-ai-print-file" type="file" accept="image/*" style="display: none;" />
-              </label>
-              <button type="button" id="f-gemini-change-btn" style="font-size: 0.72rem; color: var(--texto-muted); text-decoration: underline;">
-                Trocar chave
-              </button>
+            <div id="f-gemini-ready-wrap" style="display: none; flex-direction: column; gap: 10px; width: 100%; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--cor-base-2);">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                <label
+                  for="f-ai-print-file"
+                  class="btn-cta"
+                  style="width: auto; padding: 9px 14px; cursor: pointer; font-size: 0.75rem;"
+                >
+                  <i data-feather="camera" style="width: 13px; height: 13px;"></i>
+                  <span id="f-ai-print-label">Ler Print com IA</span>
+                  <input id="f-ai-print-file" type="file" accept="image/*" style="display: none;" />
+                </label>
+                <button type="button" id="f-gemini-change-btn" style="font-size: 0.72rem; color: var(--texto-muted); text-decoration: underline;">
+                  Trocar chave
+                </button>
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch;">
+                <input
+                  id="f-ai-cmd-input"
+                  type="text"
+                  placeholder="Peça à IA: ex. 'exclui o tênis UA' ou 'muda a Bruma Dailus para 27,90 na Magalu'"
+                  style="flex: 1; min-width: 200px; background: #fff; border: 1px solid var(--border-light); border-radius: 2px; padding: 9px 12px; font-size: 0.82rem; outline: none;"
+                />
+                <button type="button" id="f-ai-cmd-btn" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; background: #fff; color: var(--cor-titulos); border-color: var(--cor-base-1);">
+                  <i data-feather="send" style="width: 13px; height: 13px;"></i>
+                  <span id="f-ai-cmd-label">Aplicar com IA</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -3098,6 +3138,204 @@
       }
 
       syncGeminiKeyUI();
+
+      async function callGeminiJson(apiKey, parts) {
+        let models = ['gemini-2.5-flash', 'gemini-flash-latest'];
+        try {
+          const listResp = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`
+          );
+          if (listResp.ok) {
+            const listData = await listResp.json();
+            const available = (listData.models || [])
+              .filter(
+                (m) =>
+                  m.name &&
+                  Array.isArray(m.supportedGenerationMethods) &&
+                  m.supportedGenerationMethods.includes('generateContent') &&
+                  /gemini.*flash/i.test(m.name) &&
+                  !/embedding|tts|audio|live|thinking-exp/i.test(m.name)
+              )
+              .map((m) => m.name.replace(/^models\//, ''));
+            if (available.length > 0) {
+              available.sort((a, b) => b.localeCompare(a));
+              models = [...new Set(available)].slice(0, 4);
+            }
+          }
+        } catch (_) {}
+
+        let json = null;
+        let lastErrMsg = 'Erro na API Gemini';
+
+        for (const modelName of models) {
+          const resp = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts }],
+                generationConfig: { responseMimeType: 'application/json' },
+              }),
+            }
+          );
+
+          const bodyJson = await resp.json().catch(() => ({}));
+          if (resp.ok) {
+            json = bodyJson;
+            break;
+          }
+          lastErrMsg = (bodyJson.error && bodyJson.error.message) || `HTTP ${resp.status}`;
+        }
+
+        if (!json) throw new Error(lastErrMsg);
+        const rawText =
+          json.candidates &&
+          json.candidates[0] &&
+          json.candidates[0].content &&
+          json.candidates[0].content.parts &&
+          json.candidates[0].content.parts[0] &&
+          json.candidates[0].content.parts[0].text;
+
+        if (!rawText) throw new Error('Resposta vazia da IA');
+        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+        return JSON.parse(jsonMatch ? jsonMatch[0] : rawText.replace(/```json|```/g, '').trim());
+      }
+
+      // Comando por texto com IA (pede confirmação antes de editar)
+      const aiCmdInput = document.getElementById('f-ai-cmd-input');
+      const aiCmdBtn = document.getElementById('f-ai-cmd-btn');
+      const aiCmdLabel = document.getElementById('f-ai-cmd-label');
+
+      if (aiCmdBtn && aiCmdInput) {
+        aiCmdBtn.addEventListener('click', async () => {
+          const command = aiCmdInput.value.trim();
+          if (!command) {
+            showToast('Digite o que você quer que a IA faça.');
+            aiCmdInput.focus();
+            return;
+          }
+          const apiKey = getSavedGeminiKey();
+          if (!apiKey) {
+            syncGeminiKeyUI();
+            showToast('Registre sua chave do Gemini primeiro.');
+            return;
+          }
+
+          aiCmdBtn.disabled = true;
+          aiCmdLabel.textContent = 'Pensando...';
+          try {
+            const catalog = PRODUCTS.map((p) => ({
+              id: p.id,
+              name: p.name,
+              category: p.category,
+              bestToday: p.bestToday,
+              radarPrice: p.radarPrice,
+              bestStore: p.bestStore,
+              coupon: p.coupon,
+              status: state.boughtMap[p.id] ? 'comprado' : p.status,
+              note: p.note,
+            }));
+
+            const prompt = `Você é o assistente do site "Radar da Manu".
+Lista atual de produtos (JSON):
+${JSON.stringify(catalog)}
+
+Pedido do usuário: "${command}"
+
+Retorne APENAS um JSON válido com:
+{
+  "summary": "Resumo curto e claro em português do que será alterado/excluído/adicionado",
+  "actions": [
+    { "type": "delete", "id": 19 },
+    { "type": "update", "id": 8, "fields": { "bestToday": 27.90, "bestStore": "Magalu", "coupon": "CUPOM", "status": "caiu", "note": "..." } },
+    { "type": "add", "product": { "name": "...", "category": "Cabelo|Maquiagem|Skincare|Vestuário", "bestToday": 49.90, "radarPrice": 59.90, "bestStore": "Amazon", "coupon": null, "status": "caiu", "note": null } }
+  ]
+}
+Use apenas os actions necessários para atender o pedido. Se não houver ação válida, retorne actions: [].`;
+
+            const parsed = await callGeminiJson(apiKey, [{ text: prompt }]);
+            const actions = Array.isArray(parsed.actions) ? parsed.actions : [];
+            const summary = parsed.summary || 'Nenhuma alteração identificada.';
+
+            if (actions.length === 0) {
+              showToast(summary.slice(0, 90));
+              return;
+            }
+
+            const confirmed = window.confirm(
+              `A IA vai executar a seguinte alteração:\n\n${summary}\n\nDeseja confirmar?`
+            );
+            if (!confirmed) {
+              showToast('Alteração cancelada.');
+              return;
+            }
+
+            actions.forEach((act) => {
+              if (act.type === 'delete' && act.id) {
+                PRODUCTS = PRODUCTS.filter((p) => p.id !== Number(act.id));
+                delete state.boughtMap[Number(act.id)];
+              } else if (act.type === 'update' && act.id && act.fields) {
+                const idx = PRODUCTS.findIndex((p) => p.id === Number(act.id));
+                if (idx !== -1) {
+                  const f = act.fields;
+                  const updated = { ...PRODUCTS[idx], ...f };
+                  if (f.bestStore) {
+                    updated.primaryLinkStore = STORE_BUILDERS[f.bestStore] ? f.bestStore : 'Google Shopping';
+                  }
+                  if (f.status === 'comprado') {
+                    state.boughtMap[updated.id] = true;
+                  } else if (f.status) {
+                    delete state.boughtMap[updated.id];
+                  }
+                  PRODUCTS[idx] = updated;
+                }
+              } else if (act.type === 'add' && act.product && act.product.name) {
+                const pr = act.product;
+                const nextId = PRODUCTS.reduce((max, p) => Math.max(max, p.id), 0) + 1;
+                const bestToday = Number(pr.bestToday) || 0;
+                const radarPrice = pr.radarPrice !== null && pr.radarPrice !== undefined ? Number(pr.radarPrice) : null;
+                const bestStore = pr.bestStore || 'Google Shopping';
+                const status = pr.status || 'caiu';
+                PRODUCTS.unshift({
+                  id: nextId,
+                  category: ['Cabelo', 'Maquiagem', 'Skincare', 'Vestuário'].includes(pr.category) ? pr.category : 'Maquiagem',
+                  name: pr.name,
+                  query: pr.name,
+                  radarPrice,
+                  radarStore: 'Referência Radar',
+                  bestToday,
+                  bestStore,
+                  primaryLinkStore: STORE_BUILDERS[bestStore] ? bestStore : 'Google Shopping',
+                  altOffer: null,
+                  minPrice: bestToday,
+                  maxPrice: Math.max(bestToday, radarPrice || bestToday),
+                  status,
+                  statusLabel: status === 'comprado' ? 'COMPRADO' : status === 'alerta' ? 'ATENÇÃO' : 'CAIU HOJE',
+                  defaultBought: status === 'comprado',
+                  coupon: pr.coupon || null,
+                  note: pr.note || null,
+                  image: null,
+                  quickStores: ['Google Shopping', 'Amazon', 'Mercado Livre', 'Magalu'],
+                });
+                if (status === 'comprado') state.boughtMap[nextId] = true;
+              }
+            });
+
+            saveProducts(PRODUCTS);
+            saveBoughtMap(state.boughtMap);
+            aiCmdInput.value = '';
+            renderAll();
+            showToast('Alterações aplicadas com sucesso!');
+          } catch (err) {
+            console.error('Erro Comando IA:', err);
+            showToast(`Erro IA: ${(err && err.message ? err.message : 'Tente novamente').slice(0, 90)}`);
+          } finally {
+            aiCmdBtn.disabled = false;
+            aiCmdLabel.textContent = 'Aplicar com IA';
+          }
+        });
+      }
 
       if (aiPrintInput) {
         aiPrintInput.addEventListener('change', async (e) => {
