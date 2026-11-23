@@ -3723,16 +3723,24 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
               return null;
             };
 
+            clearFormFields();
+            imageInput.value = thumbUrl;
+            updateImagePreview(thumbUrl);
+
             if (parsed.name) document.getElementById('f-name').value = parsed.name;
             if (parsed.category && ['Cabelo', 'Maquiagem', 'Skincare', 'Vestuário'].includes(parsed.category)) {
               document.getElementById('f-category').value = parsed.category;
             }
             const bestNum = parsePriceVal(parsed.bestToday);
+            const maxNum = parsePriceVal(parsed.radarPrice);
             if (bestNum !== null) document.getElementById('f-best-today').value = bestNum;
+            if (maxNum !== null) document.getElementById('f-max-price').value = maxNum;
             if (parsed.bestStore) document.getElementById('f-best-store').value = parsed.bestStore;
             const noteParts = [parsed.coupon ? `Cupom: ${parsed.coupon}` : null, parsed.note].filter(Boolean);
             if (noteParts.length > 0) document.getElementById('f-note').value = noteParts.join(' • ');
 
+            setActivePanel('manual');
+            managerBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
             showToast('Print lido com IA! Confira os campos e salve.');
           } catch (err) {
             console.error('Erro Gemini:', err);
