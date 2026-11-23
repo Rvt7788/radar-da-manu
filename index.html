@@ -772,6 +772,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 40px 30px;
+      align-items: stretch;
     }
 
     .card {
@@ -779,8 +780,14 @@
       border-radius: 2px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      height: 100%;
       transition: var(--transition-smooth);
+    }
+
+    .card > div {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
     }
 
     .card.is-bought {
@@ -951,6 +958,11 @@
       color: var(--cor-titulos);
       line-height: 1.2;
       margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 2.4em;
     }
 
     .card-desc {
@@ -1023,6 +1035,7 @@
       justify-content: flex-end;
       gap: 10px;
       flex-wrap: wrap;
+      margin-top: auto;
       margin-bottom: 6px;
     }
 
@@ -1364,8 +1377,9 @@
       }
 
       .card-visual {
-        padding: 20px 12px 16px 12px;
-        min-height: 110px;
+        padding: 12px 10px 10px 10px;
+        aspect-ratio: 1 / 1;
+        margin-bottom: 10px;
       }
 
       .tag-status {
@@ -1438,21 +1452,6 @@
     <span id="toast-message">Copiado!</span>
   </div>
 
-  <!-- TOP BAR -->
-  <div class="top-bar">
-    <div class="top-bar-left">
-      <i data-feather="activity"></i>
-      <span>Black Friday 2026</span>
-    </div>
-    <div class="top-bar-center" id="topbar-summary">
-      Radar ativo — 19 itens monitorados
-    </div>
-    <div class="top-bar-right">
-      <i data-feather="bookmark"></i>
-      <span id="topbar-bought">1 / 19 comprados</span>
-    </div>
-  </div>
-
   <!-- HEADER EDITORIAL -->
   <header>
     <div class="header-content">
@@ -1470,47 +1469,6 @@
   </header>
 
   <main>
-    <!-- RESUMO FINANCEIRO EDITORIAL -->
-    <section aria-label="Resumo Financeiro" class="summary-strip">
-      <div class="summary-item">
-        <div class="summary-label">
-          <span>Total no Radar</span>
-          <i data-feather="clipboard"></i>
-        </div>
-        <div id="kpi-radar-total" class="summary-value">R$ 0,00</div>
-        <p id="kpi-radar-sub" class="summary-sub">18 itens precificados (+1 achado hoje)</p>
-      </div>
-
-      <div class="summary-item">
-        <div class="summary-label">
-          <span>Melhores Ofertas Hoje</span>
-          <i data-feather="tag"></i>
-        </div>
-        <div id="kpi-best-total" class="summary-value">R$ 0,00</div>
-        <p id="kpi-best-sub" class="summary-sub">Menor valor disponível por item</p>
-      </div>
-
-      <div class="summary-item">
-        <div class="summary-label">
-          <span>Economia vs. Radar</span>
-          <span id="kpi-savings-pct" class="summary-pct">-0%</span>
-        </div>
-        <div id="kpi-savings-value" class="summary-value accent">R$ 0,00</div>
-        <p id="kpi-savings-sub" class="summary-sub">Aproveitando as quedas de hoje</p>
-      </div>
-
-      <div class="summary-item">
-        <div class="summary-label">
-          <span>Itens Comprados</span>
-          <span id="kpi-bought-badge" class="summary-pct">1 / 19</span>
-        </div>
-        <div id="kpi-bought-value" class="summary-value">R$ 89,70</div>
-        <div class="progress-thin">
-          <div id="kpi-bought-bar" class="progress-thin-fill" style="width: 5%"></div>
-        </div>
-      </div>
-    </section>
-
     <!-- CAIXA PARA ATUALIZAR E LANÇAR NOVOS PRODUTOS -->
     <section id="manager-box" class="manager-box" aria-label="Gerenciar produtos do Radar">
       <button type="button" id="manager-toggle" class="manager-header" aria-expanded="false">
@@ -2439,60 +2397,7 @@
       // 5. CÁLCULO DOS KPIS E TOP BAR
       // =========================================================================
       function updateKPIs() {
-        const pool = PRODUCTS;
-
-        let radarSum = 0;
-        let radarCount = 0;
-        let optimizedSum = 0;
-        let savingsSum = 0;
-        let boughtCount = 0;
-        let boughtValue = 0;
-
-        pool.forEach((item) => {
-          const isBought = Boolean(state.boughtMap[item.id]);
-          const bestEffective = item.radarPrice !== null
-            ? Math.min(item.radarPrice, item.bestToday)
-            : item.bestToday;
-
-          if (item.radarPrice !== null) {
-            radarSum += item.radarPrice;
-            radarCount += 1;
-            if (item.bestToday < item.radarPrice) {
-              savingsSum += item.radarPrice - item.bestToday;
-            }
-          }
-
-          optimizedSum += bestEffective;
-
-          if (isBought) {
-            boughtCount += 1;
-            boughtValue += bestEffective;
-          }
-        });
-
-        const savingsPct = radarSum > 0 ? ((savingsSum / radarSum) * 100).toFixed(1) : '0.0';
-        const boughtPct = pool.length > 0 ? Math.round((boughtCount / pool.length) * 100) : 0;
-
-        document.getElementById('kpi-radar-total').textContent = formatBRL(radarSum);
-        document.getElementById('kpi-radar-sub').textContent = `${radarCount} itens precificados (+1 achado hoje)`;
-
-        document.getElementById('kpi-best-total').textContent = formatBRL(optimizedSum);
-        document.getElementById('kpi-best-sub').textContent = `Todos os ${pool.length} itens no menor preço`;
-
-        document.getElementById('kpi-savings-value').textContent = formatBRL(savingsSum);
-        document.getElementById('kpi-savings-pct').textContent = `-${savingsPct}%`;
-        document.getElementById('kpi-savings-sub').textContent =
-          savingsSum > 0
-            ? 'Economia real aproveitando as quedas de hoje'
-            : 'Nenhum item abaixo do radar';
-
-        document.getElementById('kpi-bought-badge').textContent = `${boughtCount} / ${pool.length}`;
-        document.getElementById('kpi-bought-value').textContent = formatBRL(boughtValue);
-        document.getElementById('kpi-bought-bar').style.width = `${boughtPct}%`;
-
-        document.getElementById('topbar-summary').textContent =
-          `Economia potencial de ${formatBRL(savingsSum)} (-${savingsPct}%) • ${pool.length} itens no radar`;
-        document.getElementById('topbar-bought').textContent = `${boughtCount} / ${pool.length} comprados`;
+        // Resumo financeiro removido para manter o foco nos produtos
       }
 
       // =========================================================================
