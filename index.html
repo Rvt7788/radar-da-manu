@@ -1802,6 +1802,11 @@
             </div>
 
             <div class="form-field span-2">
+              <label for="f-url">Link da Oferta (opcional)</label>
+              <input id="f-url" type="url" placeholder="https://..." />
+            </div>
+
+            <div class="form-field span-2">
               <label for="f-note">Observação</label>
               <input id="f-note" type="text" placeholder="Ex: Estoque baixo; cupom AATIVA10" />
             </div>
@@ -2810,40 +2815,26 @@
                   </button>
 
                   <div class="card-details">
-                    <div class="card-category">${item.category} • Ref: ${item.radarStore}</div>
-                    ${noteHtml}
-
-                    <div class="oscillation-block">
-                      <div class="oscillation-header">
-                        <span>Oscilação 6m</span>
-                        <span>${rangeLabel}</span>
-                      </div>
-                      <div class="oscillation-track" title="Preço atual na faixa: ${formatBRL(item.bestToday)}">
-                        <div class="oscillation-fill" style="width: ${fillPct}%;"></div>
-                      </div>
-                      <div class="oscillation-range">
-                        <span>Mín ${formatBRL(item.minPrice)}</span>
-                        <span>Cheio ${formatBRL(item.maxPrice)}</span>
-                      </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--texto-muted); padding: 6px 0; border-bottom: 1px solid var(--border-light);">
+                      <span>Preço Atual</span>
+                      <strong style="color: var(--texto-escuro);">${formatBRL(item.bestToday)}</strong>
                     </div>
-
-                    <div class="price-ref">
-                      Radar: ${formatBRL(item.radarPrice)}${item.altOffer && item.note ? ` • ${item.altOffer}` : ''}
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--texto-muted); padding: 6px 0; margin-bottom: 10px; border-bottom: 1px solid var(--border-light);">
+                      <span>Preço Cheio</span>
+                      <span>${formatBRL(item.maxPrice)}</span>
                     </div>
 
                     ${couponHtml}
 
-                    <div class="card-actions">
-                      <a href="${primaryUrl}" target="_blank" rel="noopener noreferrer" class="btn-cta">
-                        <span>Ver Oferta</span>
-                        <i data-feather="arrow-right"></i>
-                      </a>
+                    <div class="card-actions" style="border-top: none; padding-top: 4px;">
+                      ${item.url ? `
+                        <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="btn-cta">
+                          <span>Abrir Link</span>
+                          <i data-feather="arrow-up-right"></i>
+                        </a>
+                      ` : ''}
 
-                      <div class="quick-links">
-                        ${quickLinksHtml}
-                      </div>
-
-                      <div class="bought-row ${isBought ? 'checked' : ''}">
+                      <div class="bought-row ${isBought ? 'checked' : ''}" style="${item.url ? '' : 'margin-top: 0; border-top: none; padding-top: 4px;'}">
                         <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
                           <input
                             type="checkbox"
@@ -3139,6 +3130,7 @@
         document.getElementById('f-best-today').value = '';
         document.getElementById('f-max-price').value = '';
         document.getElementById('f-best-store').value = '';
+        document.getElementById('f-url').value = '';
         document.getElementById('f-note').value = '';
         document.getElementById('f-image').value = '';
         if (imageFileLabel) imageFileLabel.textContent = 'Enviar foto (galeria / PC) ou Ctrl+V';
@@ -3159,6 +3151,7 @@
         document.getElementById('f-best-today').value = item.bestToday ?? '';
         document.getElementById('f-max-price').value = item.maxPrice ?? '';
         document.getElementById('f-best-store').value = item.bestStore || '';
+        document.getElementById('f-url').value = item.url || '';
         document.getElementById('f-note').value = item.note || '';
         document.getElementById('f-image').value = item.image || '';
         if (imageFileLabel) imageFileLabel.textContent = 'Enviar foto (galeria / PC) ou Ctrl+V';
@@ -3615,6 +3608,7 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
         const maxRaw = document.getElementById('f-max-price').value;
         const maxPrice = maxRaw !== '' ? parseFloat(maxRaw) : bestToday;
         const bestStore = document.getElementById('f-best-store').value.trim();
+        const url = document.getElementById('f-url').value.trim() || null;
         const note = document.getElementById('f-note').value.trim() || null;
         const image = document.getElementById('f-image').value.trim() || null;
         const primaryLinkStore = STORE_BUILDERS[bestStore] ? bestStore : 'Google Shopping';
@@ -3631,6 +3625,7 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
               query: name,
               bestToday,
               bestStore,
+              url,
               primaryLinkStore,
               minPrice: Math.min(existing.minPrice ?? bestToday, bestToday),
               maxPrice: Math.max(maxPrice, bestToday),
@@ -3654,6 +3649,7 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
             radarStore: 'Referência',
             bestToday,
             bestStore,
+            url,
             primaryLinkStore,
             altOffer: null,
             minPrice: bestToday,
