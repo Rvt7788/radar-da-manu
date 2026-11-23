@@ -797,7 +797,7 @@
 
     .manager-split-bar {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       border-bottom: 1px solid transparent;
     }
 
@@ -959,7 +959,7 @@
     @media (max-width: 768px) {
       .manager-split-bar {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       border-bottom: 1px solid transparent;
     }
 
@@ -1689,14 +1689,10 @@
   </header>
 
   <main>
-    <!-- TARJA COMPACTA: EDIÇÃO MANUAL (ESQ) | LER COM IA (DIR) -->
+    <!-- TARJA COMPACTA: LER COM IA -->
     <section id="manager-box" class="manager-box" aria-label="Gerenciar produtos">
       <div class="manager-split-bar">
-        <button type="button" id="manager-toggle" class="manager-split-btn" aria-expanded="false">
-          <i data-feather="edit-3"></i>
-          <span>Edição Manual</span>
-        </button>
-        <button type="button" id="ai-panel-toggle" class="manager-split-btn" aria-expanded="false">
+        <button type="button" id="ai-panel-toggle" class="manager-split-btn" aria-expanded="false" style="border-right: none;">
           <i data-feather="cpu"></i>
           <span>Ler com IA</span>
         </button>
@@ -3017,9 +3013,11 @@
         managerBox.classList.toggle('open', Boolean(panel));
         managerManualPanel.classList.toggle('open', isManual);
         managerAiPanel.classList.toggle('open', isAi);
-        managerToggle.classList.toggle('active', isManual);
+        if (managerToggle) {
+          managerToggle.classList.toggle('active', isManual);
+          managerToggle.setAttribute('aria-expanded', String(isManual));
+        }
         aiPanelToggle.classList.toggle('active', isAi);
-        managerToggle.setAttribute('aria-expanded', String(isManual));
         aiPanelToggle.setAttribute('aria-expanded', String(isAi));
       }
 
@@ -3027,11 +3025,13 @@
         setActivePanel(isOpen ? 'manual' : null);
       }
 
-      managerToggle.addEventListener('click', () => {
-        const willOpen = activePanel !== 'manual';
-        if (willOpen && !requireAdminAuth()) return;
-        setActivePanel(willOpen ? 'manual' : null);
-      });
+      if (managerToggle) {
+        managerToggle.addEventListener('click', () => {
+          const willOpen = activePanel !== 'manual';
+          if (willOpen && !requireAdminAuth()) return;
+          setActivePanel(willOpen ? 'manual' : null);
+        });
+      }
 
       aiPanelToggle.addEventListener('click', () => {
         const willOpen = activePanel !== 'ai';
