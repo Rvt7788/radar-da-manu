@@ -1879,11 +1879,6 @@
         </div>
 
         <div class="controls-right">
-          <button type="button" id="sync-prices-btn" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;">
-            <i data-feather="refresh-cw" style="width: 13px; height: 13px;"></i>
-            <span id="sync-prices-label">Atualizar Preços &amp; Fotos</span>
-          </button>
-
           <div class="sort-wrap">
             <label for="sort-select">Ordenar:</label>
             <select id="sort-select">
@@ -3823,10 +3818,10 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
         });
       }
 
-      // Botão Atualizar Preços & Fotos (funciona no celular, computador ou servidor local)
+      // Botão Atualizar Preços & Fotos (removido da interface)
       const syncBtn = document.getElementById('sync-prices-btn');
       const syncLabel = document.getElementById('sync-prices-label');
-      syncBtn.addEventListener('click', async () => {
+      if (syncBtn) syncBtn.addEventListener('click', async () => {
         if (!requireAdminAuth()) return;
         syncBtn.disabled = true;
         syncLabel.textContent = 'Atualizando...';
