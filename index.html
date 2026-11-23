@@ -134,6 +134,82 @@
       color: var(--cor-base-2);
     }
 
+    /* --- MODAL DE AUTENTICAÇÃO DO APP --- */
+    .auth-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background-color: rgba(26, 26, 26, 0.55);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-modal-backdrop.open {
+      display: flex;
+    }
+
+    .auth-modal {
+      width: 100%;
+      max-width: 360px;
+      background-color: var(--bg-white);
+      border: 1px solid var(--cor-base-2);
+      border-top: 3px solid var(--cor-cta);
+      border-radius: 2px;
+      padding: 24px 22px 20px 22px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+    }
+
+    .auth-modal-title {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--cor-titulos);
+      margin-bottom: 4px;
+    }
+
+    .auth-modal-sub {
+      font-size: 0.82rem;
+      color: var(--texto-muted);
+      margin-bottom: 16px;
+    }
+
+    .auth-modal-input {
+      width: 100%;
+      background-color: var(--bg-site);
+      border: 1px solid var(--border-light);
+      border-radius: 2px;
+      padding: 11px 12px;
+      font-size: 1rem;
+      letter-spacing: 4px;
+      text-align: center;
+      color: var(--texto-escuro);
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .auth-modal-input:focus {
+      border-color: var(--cor-base-1);
+      background-color: var(--bg-white);
+    }
+
+    .auth-modal-error {
+      font-size: 0.78rem;
+      color: var(--cor-base-1);
+      min-height: 18px;
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    .auth-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
     /* --- TOP BAR --- */
     .top-bar {
       background-color: var(--cor-base-3);
@@ -1672,6 +1748,30 @@
     <span id="toast-message">Copiado!</span>
   </div>
 
+  <!-- Modal de Autenticação (Admin) -->
+  <div id="auth-modal" class="auth-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <div class="auth-modal">
+      <div id="auth-modal-title" class="auth-modal-title">Acesso Administrador</div>
+      <p class="auth-modal-sub">Digite a senha para liberar edições no Radar da Manu.</p>
+      <form id="auth-modal-form">
+        <input
+          id="auth-modal-input"
+          type="password"
+          inputmode="numeric"
+          autocomplete="current-password"
+          placeholder="••••••"
+          class="auth-modal-input"
+          required
+        />
+        <div id="auth-modal-error" class="auth-modal-error"></div>
+        <div class="auth-modal-actions">
+          <button type="button" id="auth-modal-cancel" class="btn-secondary">Cancelar</button>
+          <button type="submit" class="btn-cta" style="width: auto; padding: 10px 22px;">Entrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- HEADER EDITORIAL -->
   <header>
     <div class="header-content">
@@ -1915,81 +2015,18 @@
     </div>
   </main>
 
-  <!-- RODAPÉ EDITORIAL -->
-  <footer>
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <h3>Radar da Black</h3>
-        <p>
-          Painel local interativo de monitoramento de ofertas e oscilação de preços de 6 meses.
-          Compras marcadas são salvas automaticamente no seu navegador via localStorage.
-        </p>
-      </div>
-
-      <div class="footer-col">
-        <h4>Histórico 6 Meses</h4>
-        <ul>
-          <li>
-            <a href="https://keepa.com/" target="_blank" rel="noopener noreferrer">
-              Keepa <span class="tool-tag">Amazon</span>
-            </a>
-          </li>
-          <li>
-            <a href="https://www.zoom.com.br/" target="_blank" rel="noopener noreferrer">
-              Zoom <span class="tool-tag">Grandes Lojas</span>
-            </a>
-          </li>
-          <li>
-            <a href="https://www.buscape.com.br/" target="_blank" rel="noopener noreferrer">
-              Buscapé <span class="tool-tag">Comparador</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-
-      <div class="footer-col">
-        <h4>Cupons &amp; Alertas</h4>
-        <ul>
-          <li>
-            <a href="https://escorregaopreco.com.br/" target="_blank" rel="noopener noreferrer">
-              Escorrega o Preço <span class="tool-tag">Extensão</span>
-            </a>
-          </li>
-          <li>
-            <a href="https://www.pelando.com.br/" target="_blank" rel="noopener noreferrer">
-              Pelando <span class="tool-tag">Cupons</span>
-            </a>
-          </li>
-          <li>
-            <a href="https://www.promobit.com.br/" target="_blank" rel="noopener noreferrer">
-              Promobit <span class="tool-tag">Comunidade</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-
-      <div class="footer-col">
-        <h4>Arquitetura Local (Zero Bloqueio)</h4>
-        <ul class="arch-list">
-          <li>
-            <strong>Camada 1 — API Mercado Livre</strong>
-            Consulte api.mercadolibre.com/items/MLB... diretamente em JSON, sem CAPTCHA.
-          </li>
-          <li>
-            <strong>Camada 2 — Alertas Keepa (Amazon)</strong>
-            Alertas de preço alvo direto no Keepa, evitando bloqueios de Cloudflare/Akamai.
-          </li>
-          <li>
-            <strong>Camada 3 — Playwright no Windows</strong>
-            Agendador de Tarefas 2–3x/dia em IP residencial com perfil persistente do Chrome.
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <span>RADAR DA BLACK — Painel local editorial</span>
-      <span>Dados salvos localmente no navegador (localStorage)</span>
+  <!-- RODAPÉ SIMPLES -->
+  <footer style="padding: 36px 5% 28px 5%;">
+    <div class="footer-bottom" style="flex-direction: column; align-items: center; text-align: center; gap: 8px;">
+      <strong style="font-family: var(--font-display); font-size: 1.35rem; letter-spacing: 2px; text-transform: uppercase; color: #FFFFFF; font-weight: 600;">
+        Radar da Manu
+      </strong>
+      <span style="color: #CCCCCC; font-size: 0.84rem;">
+        Controle pessoal de produtos, lojas e preços
+      </span>
+      <span style="color: #999999; font-size: 0.75rem; margin-top: 4px;">
+        Sincronizado na nuvem • Instalável como app (PWA) • Edições protegidas por senha
+      </span>
     </div>
   </footer>
 
@@ -2932,8 +2969,8 @@
 
         // Eventos de edição rápida de preço e loja sem expandir o card
         grid.querySelectorAll('.quick-edit-trigger').forEach((btn) => {
-          btn.addEventListener('click', () => {
-            if (!requireAdminAuth()) return;
+          btn.addEventListener('click', async () => {
+            if (!(await requireAdminAuth())) return;
             const id = Number(btn.dataset.qeditId);
             const panel = grid.querySelector(`.quick-edit-panel[data-qedit-panel="${id}"]`);
             if (panel) panel.classList.toggle('open');
@@ -3051,19 +3088,57 @@
         }
       }
 
-      function requireAdminAuth() {
-        if (isAdminUnlocked()) return true;
-        const entered = window.prompt('Digite a senha de administrador para editar:');
-        if (entered === null) return false;
-        if (entered.trim() === ADMIN_PASS) {
+      const authModal = document.getElementById('auth-modal');
+      const authModalForm = document.getElementById('auth-modal-form');
+      const authModalInput = document.getElementById('auth-modal-input');
+      const authModalError = document.getElementById('auth-modal-error');
+      const authModalCancel = document.getElementById('auth-modal-cancel');
+      let authModalResolve = null;
+
+      function closeAuthModal(result) {
+        authModal.classList.remove('open');
+        authModalInput.value = '';
+        authModalError.textContent = '';
+        if (authModalResolve) {
+          const fn = authModalResolve;
+          authModalResolve = null;
+          fn(result);
+        }
+      }
+
+      authModalCancel.addEventListener('click', () => closeAuthModal(false));
+      authModal.addEventListener('click', (e) => {
+        if (e.target === authModal) closeAuthModal(false);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && authModal.classList.contains('open')) {
+          closeAuthModal(false);
+        }
+      });
+
+      authModalForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (authModalInput.value.trim() === ADMIN_PASS) {
           try {
             sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
           } catch (_) {}
           showToast('Modo administrador liberado.');
-          return true;
+          closeAuthModal(true);
+        } else {
+          authModalError.textContent = 'Senha incorreta. Tente novamente.';
+          authModalInput.select();
         }
-        showToast('Senha incorreta.');
-        return false;
+      });
+
+      function requireAdminAuth() {
+        if (isAdminUnlocked()) return Promise.resolve(true);
+        return new Promise((resolve) => {
+          authModalResolve = resolve;
+          authModalError.textContent = '';
+          authModalInput.value = '';
+          authModal.classList.add('open');
+          setTimeout(() => authModalInput.focus(), 50);
+        });
       }
 
       let activePanel = null; // 'manual' | 'ai' | null
@@ -3088,16 +3163,16 @@
       }
 
       if (managerToggle) {
-        managerToggle.addEventListener('click', () => {
+        managerToggle.addEventListener('click', async () => {
           const willOpen = activePanel !== 'manual';
-          if (willOpen && !requireAdminAuth()) return;
+          if (willOpen && !(await requireAdminAuth())) return;
           setActivePanel(willOpen ? 'manual' : null);
         });
       }
 
-      aiPanelToggle.addEventListener('click', () => {
+      aiPanelToggle.addEventListener('click', async () => {
         const willOpen = activePanel !== 'ai';
-        if (willOpen && !requireAdminAuth()) return;
+        if (willOpen && !(await requireAdminAuth())) return;
         setActivePanel(willOpen ? 'ai' : null);
       });
 
@@ -3237,8 +3312,8 @@
         submitLabel.textContent = 'Salvar Alterações';
       }
 
-      function openEditProduct(id) {
-        if (!requireAdminAuth()) return;
+      async function openEditProduct(id) {
+        if (!(await requireAdminAuth())) return;
         setManagerOpen(true);
         loadProductIntoForm(id);
         managerBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
