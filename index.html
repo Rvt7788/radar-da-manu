@@ -1942,9 +1942,16 @@
               <button type="button" id="f-delete-btn" class="btn-secondary" style="display: none;">
                 Excluir item
               </button>
+              <button type="button" id="f-cloud-upload-btn" class="btn-secondary" style="border-color: var(--cor-base-1); color: var(--cor-titulos);">
+                Subir para a Nuvem
+              </button>
               <button type="button" id="f-export-btn" class="btn-secondary">
                 Exportar Backup (JSON)
               </button>
+              <label for="f-import-file" class="btn-secondary" style="cursor: pointer; display: inline-flex; align-items: center;">
+                Importar Backup (JSON)
+                <input id="f-import-file" type="file" accept="application/json,.json" style="display: none;" />
+              </label>
               <button type="button" id="f-reset-all-btn" class="btn-secondary">
                 Restaurar lista original
               </button>
@@ -3342,6 +3349,67 @@
         renderAll();
         showToast('Item excluído do Radar.');
       });
+
+      document.getElementById('f-cloud-upload-btn').addEventListener('click', async () => {
+        const btn = document.getElementById('f-cloud-upload-btn');
+        btn.disabled = true;
+        btn.textContent = 'Enviando...';
+        try {
+          const resp = await fetch(`${SUPABASE_URL}/rest/v1/radar_state?on_conflict=id`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              apikey: SUPABASE_KEY,
+              Prefer: 'resolution=merge-duplicates',
+            },
+            body: JSON.stringify({
+              id: 'main',
+              products: PRODUCTS,
+              bought_map: state.boughtMap,
+              updated_at: new Date().toISOString(),
+            }),
+          });
+          if (!resp.ok) {
+            const txt = await resp.text().catch(() => '');
+            throw new Error(`HTTP ${resp.status} ${txt}`);
+          }
+          showToast('Dados enviados para a nuvem com sucesso!');
+        } catch (err) {
+          showToast(`Erro ao subir: ${(err && err.message ? err.message : 'verifique permissões').slice(0, 80)}`);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Subir para a Nuvem';
+        }
+      });
+
+      const importFileInput = document.getElementById('f-import-file');
+      if (importFileInput) {
+        importFileInput.addEventListener('change', async (e) => {
+          const file = e.target.files && e.target.files[0];
+          importFileInput.value = '';
+          if (!file) return;
+          try {
+            const text = await file.text();
+            const parsed = JSON.parse(text);
+            if (!Array.isArray(parsed) || parsed.length === 0) {
+              throw new Error('JSON inválido');
+            }
+            PRODUCTS = parsed.map((p) => {
+              if (p.category === 'Maquiagem Essencial' || p.category === 'Quero / Boca') {
+                return { ...p, category: 'Maquiagem' };
+              }
+              return p;
+            });
+            saveProducts(PRODUCTS);
+            clearFormFields();
+            setActivePanel(null);
+            renderAll();
+            showToast(`Backup importado (${PRODUCTS.length} itens) e enviado para a nuvem!`);
+          } catch (_) {
+            showToast('Arquivo JSON inválido.');
+          }
+        });
+      }
 
       document.getElementById('f-export-btn').addEventListener('click', () => {
         const blob = new Blob([JSON.stringify(PRODUCTS, null, 2)], { type: 'application/json' });
