@@ -1937,29 +1937,11 @@
             </div>
           </div>
 
-          <div class="form-actions">
-            <div class="form-actions-left">
-              <button type="button" id="f-delete-btn" class="btn-secondary" style="display: none;">
-                Excluir item
-              </button>
-              <button type="button" id="f-cloud-upload-btn" class="btn-secondary" style="border-color: var(--cor-base-1); color: var(--cor-titulos);">
-                Subir para a Nuvem
-              </button>
-              <button type="button" id="f-export-btn" class="btn-secondary">
-                Exportar Backup (JSON)
-              </button>
-              <label for="f-import-file" class="btn-secondary" style="cursor: pointer; display: inline-flex; align-items: center;">
-                Importar Backup (JSON)
-                <input id="f-import-file" type="file" accept="application/json,.json" style="display: none;" />
-              </label>
-              <button type="button" id="f-reset-all-btn" class="btn-secondary">
-                Restaurar lista original
-              </button>
-            </div>
+          <div class="form-actions" style="justify-content: flex-end;">
             <div class="form-actions-right">
               <button type="button" id="f-cancel-btn" class="btn-secondary">Limpar</button>
               <button type="submit" id="f-submit-btn" class="btn-cta" style="width: auto; padding: 11px 28px;">
-                <span id="f-submit-label">Lançar Produto</span>
+                <span id="f-submit-label">Salvar</span>
                 <i data-feather="check"></i>
               </button>
             </div>
@@ -3318,8 +3300,8 @@
         document.getElementById('f-image').value = '';
         if (imageFileLabel) imageFileLabel.textContent = 'Enviar foto (galeria / PC) ou Ctrl+V';
         updateImagePreview('');
-        deleteBtn.style.display = 'none';
-        submitLabel.textContent = 'Lançar Produto';
+        if (deleteBtn) deleteBtn.style.display = 'none';
+        submitLabel.textContent = 'Salvar';
       }
 
       function loadProductIntoForm(id) {
@@ -3339,8 +3321,8 @@
         document.getElementById('f-image').value = item.image || '';
         if (imageFileLabel) imageFileLabel.textContent = 'Enviar foto (galeria / PC) ou Ctrl+V';
         updateImagePreview(item.image || `img/produtos/produto-${item.id}.jpg`);
-        deleteBtn.style.display = 'inline-block';
-        submitLabel.textContent = 'Salvar Alterações';
+        if (deleteBtn) deleteBtn.style.display = 'inline-block';
+        submitLabel.textContent = 'Salvar';
       }
 
       async function openEditProduct(id) {
@@ -3360,92 +3342,6 @@
       });
 
       document.getElementById('f-cancel-btn').addEventListener('click', clearFormFields);
-
-      deleteBtn.addEventListener('click', () => {
-        const id = Number(editSelect.value);
-        if (!id) return;
-        PRODUCTS = PRODUCTS.filter((p) => p.id !== id);
-        delete state.boughtMap[id];
-        saveProducts(PRODUCTS);
-        saveBoughtMap(state.boughtMap);
-        clearFormFields();
-        renderAll();
-        showToast('Item excluído do Radar.');
-      });
-
-      document.getElementById('f-cloud-upload-btn').addEventListener('click', async () => {
-        const btn = document.getElementById('f-cloud-upload-btn');
-        btn.disabled = true;
-        btn.textContent = 'Enviando...';
-        try {
-          const resp = await fetch(`${SUPABASE_URL}/rest/v1/radar_state?on_conflict=id`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              apikey: SUPABASE_KEY,
-              Prefer: 'resolution=merge-duplicates',
-            },
-            body: JSON.stringify({
-              id: 'main',
-              products: PRODUCTS,
-              bought_map: state.boughtMap,
-              updated_at: new Date().toISOString(),
-            }),
-          });
-          if (!resp.ok) {
-            const txt = await resp.text().catch(() => '');
-            throw new Error(`HTTP ${resp.status} ${txt}`);
-          }
-          showToast('Dados enviados para a nuvem com sucesso!');
-        } catch (err) {
-          showToast(`Erro ao subir: ${(err && err.message ? err.message : 'verifique permissões').slice(0, 80)}`);
-        } finally {
-          btn.disabled = false;
-          btn.textContent = 'Subir para a Nuvem';
-        }
-      });
-
-      const importFileInput = document.getElementById('f-import-file');
-      if (importFileInput) {
-        importFileInput.addEventListener('change', async (e) => {
-          const file = e.target.files && e.target.files[0];
-          importFileInput.value = '';
-          if (!file) return;
-          try {
-            const text = await file.text();
-            const parsed = JSON.parse(text);
-            if (!Array.isArray(parsed) || parsed.length === 0) {
-              throw new Error('JSON inválido');
-            }
-            PRODUCTS = parsed.map((p) => {
-              if (p.category === 'Maquiagem Essencial' || p.category === 'Quero / Boca') {
-                return { ...p, category: 'Maquiagem' };
-              }
-              return p;
-            });
-            saveProducts(PRODUCTS);
-            clearFormFields();
-            setActivePanel(null);
-            renderAll();
-            showToast(`Backup importado (${PRODUCTS.length} itens) e enviado para a nuvem!`);
-          } catch (_) {
-            showToast('Arquivo JSON inválido.');
-          }
-        });
-      }
-
-      document.getElementById('f-export-btn').addEventListener('click', () => {
-        const blob = new Blob([JSON.stringify(PRODUCTS, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'radar-backup.json';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-        showToast('Backup radar-backup.json baixado!');
-      });
 
       // Ler Print com IA (Google Gemini 2.5 Flash - Free Tier)
       const GEMINI_KEY_STORAGE = 'radar_manu_gemini_key_v1';
@@ -3843,14 +3739,6 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
           }
         });
       }
-
-      document.getElementById('f-reset-all-btn').addEventListener('click', () => {
-        PRODUCTS = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
-        saveProducts(PRODUCTS);
-        clearFormFields();
-        renderAll();
-        showToast('Lista original de 19 itens restaurada.');
-      });
 
       productForm.addEventListener('submit', (e) => {
         e.preventDefault();
