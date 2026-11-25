@@ -1937,7 +1937,12 @@
             </div>
           </div>
 
-          <div class="form-actions" style="justify-content: flex-end;">
+          <div class="form-actions">
+            <div class="form-actions-left">
+              <button type="button" id="f-delete-btn" class="btn-secondary" style="display: none; border-color: var(--cor-base-1); color: var(--cor-cta);">
+                Excluir item
+              </button>
+            </div>
             <div class="form-actions-right">
               <button type="button" id="f-cancel-btn" class="btn-secondary">Limpar</button>
               <button type="submit" id="f-submit-btn" class="btn-cta" style="width: auto; padding: 11px 28px;">
@@ -2515,12 +2520,20 @@
               return p;
             });
 
-            // Merge inteligente por ID: mantém a versão mais recente (updatedAt) e nunca apaga itens novos locais
+            // Merge inteligente por ID: mantém a versão mais recente (updatedAt), respeita exclusões e nunca apaga itens novos locais
+            const cloudBought = rows[0].bought_map || {};
+            const cloudDeleted = Array.isArray(cloudBought.__deletedIds) ? cloudBought.__deletedIds : [];
+            const localDeleted = Array.isArray(state.boughtMap.__deletedIds) ? state.boughtMap.__deletedIds : [];
+            const deletedSet = new Set([...cloudDeleted, ...localDeleted].map(Number));
+
             const mergedMap = new Map();
-            cloudList.forEach((p) => mergedMap.set(p.id, p));
+            cloudList.forEach((p) => {
+              if (!deletedSet.has(Number(p.id))) mergedMap.set(p.id, p);
+            });
 
             let hasLocalNewer = false;
             PRODUCTS.forEach((localItem) => {
+              if (deletedSet.has(Number(localItem.id))) return;
               const cloudItem = mergedMap.get(localItem.id);
               if (!cloudItem) {
                 if (localItem.createdAt || localItem.updatedAt) {
@@ -2534,7 +2547,7 @@
             });
 
             PRODUCTS = Array.from(mergedMap.values());
-            state.boughtMap = { ...(rows[0].bought_map || {}), ...state.boughtMap };
+            state.boughtMap = { ...cloudBought, ...state.boughtMap, __deletedIds: Array.from(deletedSet) };
             try {
               localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(PRODUCTS));
               localStorage.setItem(STORAGE_KEY, JSON.stringify(state.boughtMap));
@@ -3343,6 +3356,38 @@
 
       document.getElementById('f-cancel-btn').addEventListener('click', clearFormFields);
 
+      function getNextProductId() {
+        const deleted = Array.isArray(state.boughtMap.__deletedIds) ? state.boughtMap.__deletedIds : [];
+        const maxProd = PRODUCTS.reduce((max, p) => Math.max(max, Number(p.id) || 0), 0);
+        const maxDel = deleted.reduce((max, id) => Math.max(max, Number(id) || 0), 0);
+        return Math.max(maxProd, maxDel) + 1;
+      }
+
+      function markIdDeleted(id) {
+        const list = Array.isArray(state.boughtMap.__deletedIds) ? state.boughtMap.__deletedIds : [];
+        if (!list.includes(id)) list.push(id);
+        state.boughtMap.__deletedIds = list;
+      }
+
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+          const id = Number(editSelect.value);
+          if (!id) return;
+          const item = PRODUCTS.find((p) => p.id === id);
+          const label = item ? item.name : `#${id}`;
+          if (!window.confirm(`Deseja excluir "${label}"?`)) return;
+          PRODUCTS = PRODUCTS.filter((p) => p.id !== id);
+          delete state.boughtMap[id];
+          markIdDeleted(id);
+          saveProducts(PRODUCTS);
+          saveBoughtMap(state.boughtMap);
+          clearFormFields();
+          setActivePanel(null);
+          renderAll();
+          showToast('Item excluído.');
+        });
+      }
+
       // Ler Print com IA (Google Gemini 2.5 Flash - Free Tier)
       const GEMINI_KEY_STORAGE = 'radar_manu_gemini_key_v1';
       const geminiKeyInput = document.getElementById('f-gemini-key');
@@ -3533,8 +3578,10 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
 
             actions.forEach((act) => {
               if (act.type === 'delete' && act.id) {
-                PRODUCTS = PRODUCTS.filter((p) => p.id !== Number(act.id));
-                delete state.boughtMap[Number(act.id)];
+                const delId = Number(act.id);
+                PRODUCTS = PRODUCTS.filter((p) => p.id !== delId);
+                delete state.boughtMap[delId];
+                markIdDeleted(delId);
               } else if (act.type === 'update' && act.id && act.fields) {
                 const idx = PRODUCTS.findIndex((p) => p.id === Number(act.id));
                 if (idx !== -1) {
@@ -3552,7 +3599,8 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
                 }
               } else if (act.type === 'add' && act.product && act.product.name) {
                 const pr = act.product;
-                const nextId = PRODUCTS.reduce((max, p) => Math.max(max, p.id), 0) + 1;
+                const nextId = getNextProductId();
+                const now = Date.now();
                 const bestToday = Number(pr.bestToday) || 0;
                 const radarPrice = pr.radarPrice !== null && pr.radarPrice !== undefined ? Number(pr.radarPrice) : null;
                 const bestStore = pr.bestStore || 'Google Shopping';
@@ -3576,6 +3624,8 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
                   coupon: pr.coupon || null,
                   note: pr.note || null,
                   image: null,
+                  createdAt: now,
+                  updatedAt: now,
                   quickStores: ['Google Shopping', 'Amazon', 'Mercado Livre', 'Magalu'],
                 });
                 if (status === 'comprado') state.boughtMap[nextId] = true;
@@ -3781,7 +3831,7 @@ Use apenas os actions necessários para atender o pedido. Se não houver ação 
             showToast('Produto atualizado com sucesso.');
           }
         } else {
-          const nextId = PRODUCTS.reduce((max, p) => Math.max(max, p.id), 0) + 1;
+          const nextId = getNextProductId();
           const newItem = {
             id: nextId,
             category,
